@@ -146,7 +146,7 @@ export default function TepsVocabPage() {
         >
           <Trophy size={56} className="mx-auto mb-4 text-amber-400" />
           <h1 className="text-3xl font-bold text-[var(--foreground)]">오늘의 결과</h1>
-          <p className="mt-1 text-sm text-[var(--muted-foreground)]">{getDisplayDate()} · TEPS 어휘</p>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">{getDisplayDate()} · TEPS 단어</p>
 
           <div className="mt-8 flex flex-col items-center gap-4">
             <div className={`text-7xl font-bold ${grade.color}`}>{grade.label}</div>
@@ -282,7 +282,7 @@ export default function TepsVocabPage() {
               <Pencil size={22} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-[var(--foreground)]">오늘의 TEPS 어휘</h1>
+              <h1 className="text-xl font-bold text-[var(--foreground)]">오늘의 TEPS 단어</h1>
               <p className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
                 <CalendarDays size={11} />
                 {getDisplayDate()} · {DAILY_COUNT}문제

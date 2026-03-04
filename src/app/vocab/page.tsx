@@ -149,7 +149,7 @@ export default function VocabPage() {
             <BookOpen size={20} />
           </div>
           <div>
-            <h1 className="text-xl font-bold">TEPS 어휘</h1>
+            <h1 className="text-xl font-bold">TEPS 단어</h1>
             <p className="text-xs text-[var(--muted)]">영→한 4지선다 퀴즈</p>
           </div>
         </div>
