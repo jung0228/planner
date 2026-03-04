@@ -42,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# server data (Pi에만 존재, Git에 올리지 않음)
+/data/store.json

@@ -10,6 +10,7 @@ import {
   recordCorrect,
   recordWrong,
   getPersistentWrongIds,
+  initTepsQuizData,
   type QuizQuestion,
 } from "@/lib/teps-quiz";
 import { TEPS_VOCAB } from "@/lib/teps-vocab";
@@ -37,15 +38,6 @@ export default function VocabPage() {
   const [tab, setTab] = useState<Tab>("quiz");
   const [isSpeaking, setIsSpeaking] = useState(false);
 
-  useEffect(() => {
-    const session = getQuizSession(TODAY);
-    setCorrectCount(session.correctCount);
-    setAnsweredIds(session.answeredIds);
-    setWrongIds(session.wrongIds);
-    setPersistentWrongIds(getPersistentWrongIds());
-    if (session.correctCount >= GOAL) setQuestDone(true);
-  }, []);
-
   const speak = useCallback((word: string) => {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     window.speechSynthesis.cancel();
@@ -70,7 +62,18 @@ export default function VocabPage() {
   }, [speak]);
 
   useEffect(() => {
-    if (!questDone) loadNextQuestion(answeredIds);
+    async function init() {
+      await initTepsQuizData(); // 서버에서 최신 데이터 pull
+      const session = getQuizSession(TODAY);
+      setCorrectCount(session.correctCount);
+      setAnsweredIds(session.answeredIds);
+      setWrongIds(session.wrongIds);
+      setPersistentWrongIds(getPersistentWrongIds());
+      const done = session.correctCount >= GOAL;
+      setQuestDone(done);
+      if (!done) loadNextQuestion(session.answeredIds);
+    }
+    init();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

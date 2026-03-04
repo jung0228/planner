@@ -1,0 +1,30 @@
+name: Deploy to Raspberry Pi
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Pull latest code
+        run: |
+          cd ~/planner
+          git pull origin main
+
+      - name: Install dependencies
+        run: |
+          cd ~/planner
+          npm install
+
+      - name: Build
+        run: |
+          cd ~/planner
+          npm run build
+
+      - name: Restart app
+        run: |
+          cd ~/planner
+          pm2 restart planner || pm2 start npm --name planner -- start
+          pm2 save

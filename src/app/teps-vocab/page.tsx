@@ -9,7 +9,7 @@ import {
 import { questions as allQuestions } from "./data";
 import type { Question } from "./data";
 import { recordCorrect, recordWrong } from "@/lib/teps-quiz";
-import { getWrongQIds, addWrongQ, removeWrongQ } from "@/lib/teps-vocab-progress";
+import { getWrongQIds, addWrongQ, removeWrongQ, initTepsVocabProgress } from "@/lib/teps-vocab-progress";
 
 type Answer = "a" | "b" | "c" | "d" | null;
 
@@ -56,7 +56,14 @@ function loadProgress() {
 }
 
 function saveProgress(data: object) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch {}
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    fetch("/api/store", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [STORAGE_KEY]: data }),
+    }).catch(() => {});
+  } catch {}
 }
 
 export default function TepsVocabPage() {
@@ -88,7 +95,31 @@ export default function TepsVocabPage() {
   const [reviewClearedIds, setReviewClearedIds] = useState<number[]>([]);
 
   useEffect(() => {
-    setWrongQIds(getWrongQIds());
+    async function init() {
+      await initTepsVocabProgress(); // 서버에서 wrongQIds pull
+      setWrongQIds(getWrongQIds());
+
+      // 서버에 오늘 진행 기록이 있으면 복구
+      if (!loadProgress()) {
+        try {
+          const res = await fetch("/api/store");
+          if (res.ok) {
+            const data = await res.json();
+            const serverProgress = data[STORAGE_KEY];
+            if (serverProgress) {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(serverProgress));
+              setCurrentIndex(serverProgress.currentIndex ?? 0);
+              setAnswers(serverProgress.answers ?? new Array(questions.length).fill(null));
+              setCheckedList(serverProgress.checkedList ?? new Array(questions.length).fill(false));
+              setShowResult(serverProgress.showResult ?? false);
+              setSelected(serverProgress.answers?.[serverProgress.currentIndex ?? 0] ?? null);
+              setChecked(serverProgress.checkedList?.[serverProgress.currentIndex ?? 0] ?? false);
+            }
+          }
+        } catch {}
+      }
+    }
+    init();
   }, []);
 
   useEffect(() => {
@@ -183,6 +214,11 @@ export default function TepsVocabPage() {
 
   const handleReset = () => {
     localStorage.removeItem(STORAGE_KEY);
+    fetch("/api/store", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [STORAGE_KEY]: null }),
+    }).catch(() => {});
     setCurrentIndex(0);
     setSelected(null);
     setChecked(false);

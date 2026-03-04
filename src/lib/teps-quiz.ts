@@ -15,6 +15,40 @@ export type QuizQuestion = {
 const SESSION_KEY_PREFIX = "personal-site-teps-";
 const PERSISTENT_WRONG_KEY = "personal-site-teps-wrong-all";
 
+// ── Server sync helpers ──────────────────────────────────────────────────────
+
+async function pushKey(key: string, value: unknown): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    await fetch("/api/store", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ [key]: value }),
+    });
+  } catch {}
+}
+
+// Pull all teps data from server into localStorage (call on page mount)
+export async function initTepsQuizData(): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    const res = await fetch("/api/store");
+    if (!res.ok) return;
+    const data = await res.json();
+
+    if (data[PERSISTENT_WRONG_KEY] != null) {
+      localStorage.setItem(PERSISTENT_WRONG_KEY, JSON.stringify(data[PERSISTENT_WRONG_KEY]));
+    }
+    Object.entries(data).forEach(([key, value]) => {
+      if (key.startsWith(SESSION_KEY_PREFIX) && value != null) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+    });
+  } catch {}
+}
+
+// ── Persistent wrong IDs ─────────────────────────────────────────────────────
+
 export function getPersistentWrongIds(): number[] {
   if (typeof window === "undefined") return [];
   try {
@@ -29,12 +63,20 @@ function setPersistentWrongIds(ids: number[]) {
 
 export function addPersistentWrong(wordId: number) {
   const ids = getPersistentWrongIds();
-  if (!ids.includes(wordId)) setPersistentWrongIds([...ids, wordId]);
+  if (!ids.includes(wordId)) {
+    const newIds = [...ids, wordId];
+    setPersistentWrongIds(newIds);
+    pushKey(PERSISTENT_WRONG_KEY, newIds);
+  }
 }
 
 export function removePersistentWrong(wordId: number) {
-  setPersistentWrongIds(getPersistentWrongIds().filter(id => id !== wordId));
+  const newIds = getPersistentWrongIds().filter(id => id !== wordId);
+  setPersistentWrongIds(newIds);
+  pushKey(PERSISTENT_WRONG_KEY, newIds);
 }
+
+// ── Daily quiz sessions ──────────────────────────────────────────────────────
 
 export function getQuizSession(date: string): QuizSession {
   if (typeof window === "undefined") return { correctCount: 0, answeredIds: [], wrongIds: [] };
@@ -53,8 +95,11 @@ export function saveQuizSession(date: string, session: QuizSession) {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(SESSION_KEY_PREFIX + date, JSON.stringify(session));
+    pushKey(SESSION_KEY_PREFIX + date, session);
   } catch {}
 }
+
+// ── Question generation ──────────────────────────────────────────────────────
 
 export function generateQuestion(answeredIds: number[]): QuizQuestion | null {
   const remaining = TEPS_VOCAB.filter((w) => !answeredIds.includes(w.id));
