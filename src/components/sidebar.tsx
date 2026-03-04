@@ -14,7 +14,7 @@ const navItems = [
   { href: "/vocab", icon: BookOpen, label: "TEPS 단어", active: true },
   { href: "/teps", icon: ScrollText, label: "TEPS 독해", active: true },
   { href: "/teps-listening", icon: Headphones, label: "TEPS 리스닝", active: true },
-  { href: "/teps-vocab", icon: Pencil, label: "TEPS 단어", active: true },
+  { href: "/teps-vocab", icon: Pencil, label: "TEPS 어휘", active: true },
   { href: "/teps-grammar", icon: GraduationCap, label: "TEPS 문법", active: true },
   { href: "/todos", icon: ListTodo, label: "할일", active: false, soon: true },
   { href: "/notes", icon: StickyNote, label: "메모", active: false, soon: true },
