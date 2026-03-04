@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { questions as allQuestions } from "./data";
 import type { Question } from "./data";
+import { recordCorrect, recordWrong } from "@/lib/teps-quiz";
 
 type Answer = "a" | "b" | "c" | "d" | null;
 
@@ -99,6 +100,11 @@ export default function TepsVocabPage() {
     const newChecked = [...checkedList];
     newChecked[currentIndex] = true;
     setCheckedList(newChecked);
+    // vocabId 연동: TEPS 단어 세션에도 정답/오답 반영
+    if (q.vocabId) {
+      if (selected === q.answer) recordCorrect(todayStr, q.vocabId);
+      else recordWrong(todayStr, q.vocabId);
+    }
   };
 
   const goTo = (index: number) => {
