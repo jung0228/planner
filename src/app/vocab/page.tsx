@@ -9,6 +9,7 @@ import {
   generateQuestion,
   recordCorrect,
   recordWrong,
+  getPersistentWrongIds,
   type QuizQuestion,
 } from "@/lib/teps-quiz";
 import { TEPS_VOCAB } from "@/lib/teps-vocab";
@@ -25,6 +26,7 @@ type Tab = "quiz" | "wrong" | "song";
 export default function VocabPage() {
   const [correctCount, setCorrectCount] = useState(0);
   const [wrongIds, setWrongIds] = useState<number[]>([]);
+  const [persistentWrongIds, setPersistentWrongIds] = useState<number[]>([]);
   const [answeredIds, setAnsweredIds] = useState<number[]>([]);
   const [question, setQuestion] = useState<QuizQuestion | null>(null);
   const [answerState, setAnswerState] = useState<AnswerState>("idle");
@@ -40,6 +42,7 @@ export default function VocabPage() {
     setCorrectCount(session.correctCount);
     setAnsweredIds(session.answeredIds);
     setWrongIds(session.wrongIds);
+    setPersistentWrongIds(getPersistentWrongIds());
     if (session.correctCount >= GOAL) setQuestDone(true);
   }, []);
 
@@ -83,6 +86,7 @@ export default function VocabPage() {
       const newIds = [...answeredIds, question.word.id];
       setCorrectCount(newCount);
       setAnsweredIds(newIds);
+      setPersistentWrongIds(prev => prev.filter(id => id !== question.word.id));
 
       if (reached20 && !questDone) {
         setQuestDone(true);
@@ -105,6 +109,7 @@ export default function VocabPage() {
       if (!wrongIds.includes(question.word.id)) {
         setWrongIds((prev) => [...prev, question.word.id]);
       }
+      setPersistentWrongIds(prev => prev.includes(question.word.id) ? prev : [...prev, question.word.id]);
       setTimeout(() => {
         setAnswerState("idle");
         setSelectedIndex(null);
@@ -120,6 +125,7 @@ export default function VocabPage() {
     if (!wrongIds.includes(question.word.id)) {
       setWrongIds((prev) => [...prev, question.word.id]);
     }
+    setPersistentWrongIds(prev => prev.includes(question.word.id) ? prev : [...prev, question.word.id]);
     setTimeout(() => loadNextQuestion(answeredIds), 1200);
   };
 
@@ -138,7 +144,7 @@ export default function VocabPage() {
 
 
   const progressPct = Math.min((correctCount / GOAL) * 100, 100);
-  const wrongWords = TEPS_VOCAB.filter((w) => wrongIds.includes(w.id));
+  const wrongWords = TEPS_VOCAB.filter((w) => persistentWrongIds.includes(w.id));
 
   return (
     <div className="flex min-h-screen flex-col items-center px-4 py-10">
@@ -156,10 +162,10 @@ export default function VocabPage() {
 
         <div className="flex items-center gap-2">
           {/* Wrong badge */}
-          {wrongWords.length > 0 && (
+          {persistentWrongIds.length > 0 && (
             <div className="flex items-center gap-1.5 rounded-full border border-red-500/40 bg-red-500/10 px-3 py-1.5">
               <XCircle size={13} className="text-red-400" />
-              <span className="text-sm font-bold text-red-400">{wrongWords.length}</span>
+              <span className="text-sm font-bold text-red-400">{persistentWrongIds.length}</span>
             </div>
           )}
           {/* Correct badge */}
@@ -346,7 +352,7 @@ export default function VocabPage() {
           ) : (
             <div className="space-y-3">
               <p className="mb-4 text-sm text-[var(--muted)]">
-                오늘 틀린 단어 <span className="font-bold text-red-400">{wrongWords.length}개</span>를 복습하세요.
+                누적 오답 단어 <span className="font-bold text-red-400">{wrongWords.length}개</span> — 맞히면 자동으로 목록에서 제거됩니다.
               </p>
               {wrongWords.map((w) => (
                 <motion.div

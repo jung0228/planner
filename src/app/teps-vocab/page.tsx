@@ -9,6 +9,7 @@ import {
 import { questions as allQuestions } from "./data";
 import type { Question } from "./data";
 import { recordCorrect, recordWrong } from "@/lib/teps-quiz";
+import { getWrongQIds, addWrongQ, removeWrongQ } from "@/lib/teps-vocab-progress";
 
 type Answer = "a" | "b" | "c" | "d" | null;
 
@@ -77,6 +78,19 @@ export default function TepsVocabPage() {
     saved?.checkedList?.[saved?.currentIndex ?? 0] ?? false
   );
 
+  // 오답 복습 관련 state
+  const [wrongQIds, setWrongQIds] = useState<number[]>([]);
+  const [showWrongReview, setShowWrongReview] = useState(false);
+  const [reviewSnapshot, setReviewSnapshot] = useState<Question[]>([]);
+  const [reviewIndex, setReviewIndex] = useState(0);
+  const [reviewSelected, setReviewSelected] = useState<Answer>(null);
+  const [reviewChecked, setReviewChecked] = useState(false);
+  const [reviewClearedIds, setReviewClearedIds] = useState<number[]>([]);
+
+  useEffect(() => {
+    setWrongQIds(getWrongQIds());
+  }, []);
+
   useEffect(() => {
     saveProgress({ currentIndex, answers, checkedList, showResult });
   }, [currentIndex, answers, checkedList, showResult]);
@@ -105,6 +119,14 @@ export default function TepsVocabPage() {
       if (selected === q.answer) recordCorrect(todayStr, q.vocabId);
       else recordWrong(todayStr, q.vocabId);
     }
+    // 오답 영구 추적
+    if (selected === q.answer) {
+      removeWrongQ(q.id);
+      setWrongQIds(prev => prev.filter(id => id !== q.id));
+    } else {
+      addWrongQ(q.id);
+      setWrongQIds(prev => prev.includes(q.id) ? prev : [...prev, q.id]);
+    }
   };
 
   const goTo = (index: number) => {
@@ -121,6 +143,42 @@ export default function TepsVocabPage() {
 
   const handlePrev = () => {
     if (currentIndex > 0) goTo(currentIndex - 1);
+  };
+
+  const enterReview = () => {
+    const wrongQs = allQuestions.filter(q => wrongQIds.includes(q.id));
+    setReviewSnapshot(wrongQs);
+    setReviewIndex(0);
+    setReviewSelected(null);
+    setReviewChecked(false);
+    setReviewClearedIds([]);
+    setShowWrongReview(true);
+  };
+
+  const handleReviewSelect = (opt: "a" | "b" | "c" | "d") => {
+    if (reviewChecked) return;
+    setReviewSelected(opt);
+  };
+
+  const handleReviewCheck = () => {
+    if (!reviewSelected) return;
+    setReviewChecked(true);
+    const rq = reviewSnapshot[reviewIndex];
+    if (reviewSelected === rq.answer) {
+      removeWrongQ(rq.id);
+      setWrongQIds(prev => prev.filter(id => id !== rq.id));
+      setReviewClearedIds(prev => [...prev, rq.id]);
+    }
+  };
+
+  const handleReviewNext = () => {
+    if (reviewIndex < reviewSnapshot.length - 1) {
+      setReviewIndex(prev => prev + 1);
+      setReviewSelected(null);
+      setReviewChecked(false);
+    } else {
+      setShowWrongReview(false);
+    }
   };
 
   const handleReset = () => {
@@ -225,6 +283,170 @@ export default function TepsVocabPage() {
     );
   }
 
+  if (showWrongReview) {
+    const rq = reviewSnapshot[reviewIndex];
+    const isDone = reviewIndex >= reviewSnapshot.length;
+
+    if (!rq || isDone) {
+      return (
+        <div className="mx-auto max-w-2xl space-y-4">
+          <div className="flex items-center gap-3">
+            <button onClick={() => setShowWrongReview(false)} className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--muted)]">
+              <ChevronLeft size={24} />
+            </button>
+            <h1 className="text-xl font-bold text-[var(--foreground)]">오답 복습 완료</h1>
+          </div>
+          <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-8 text-center">
+            <Trophy size={48} className="mx-auto mb-4 text-amber-400" />
+            <p className="text-lg font-semibold text-[var(--foreground)]">
+              {reviewClearedIds.length > 0
+                ? `${reviewClearedIds.length}개 문제를 맞혀서 오답 목록에서 제거했어요!`
+                : "이번 복습에서 맞힌 문제가 없어요. 다시 도전해봐요!"}
+            </p>
+            <p className="mt-2 text-sm text-[var(--muted-foreground)]">남은 오답: {wrongQIds.length}개</p>
+            <button
+              onClick={() => setShowWrongReview(false)}
+              className="mt-6 rounded-xl bg-[var(--accent)] px-6 py-2.5 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+            >
+              돌아가기
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mx-auto max-w-3xl space-y-4">
+        {/* 헤더 */}
+        <div className="-mx-8 -mt-8 mb-0 overflow-hidden rounded-2xl border border-red-500/30 bg-red-500/5 px-8 pb-6 pt-8 shadow-sm">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <button onClick={() => setShowWrongReview(false)} className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--muted)]">
+                <ChevronLeft size={20} />
+              </button>
+              <div>
+                <h1 className="text-xl font-bold text-[var(--foreground)]">오답 복습</h1>
+                <p className="text-xs text-[var(--muted-foreground)]">맞히면 오답 목록에서 자동 제거됩니다</p>
+              </div>
+            </div>
+            <span className="text-sm font-medium text-red-400">{reviewIndex + 1} / {reviewSnapshot.length}</span>
+          </div>
+          <div className="mt-4 h-2 w-full overflow-hidden rounded-full bg-[var(--muted)]">
+            <div
+              className="h-full rounded-full bg-red-500 transition-all duration-300"
+              style={{ width: `${((reviewIndex) / reviewSnapshot.length) * 100}%` }}
+            />
+          </div>
+        </div>
+
+        {/* 문제 카드 */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={reviewIndex}
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -30 }}
+            transition={{ duration: 0.2 }}
+            className="space-y-4"
+          >
+            <div className="flex items-center gap-2">
+              <span className="rounded-full bg-red-500/20 px-3 py-1 text-xs font-semibold text-red-400">
+                Part {rq.part}
+              </span>
+              <span className="text-sm text-[var(--muted-foreground)]">{rq.partLabel}</span>
+              {reviewClearedIds.includes(rq.id) && (
+                <span className="ml-auto rounded-full bg-emerald-500/20 px-2 py-0.5 text-xs font-medium text-emerald-400">✓ 제거됨</span>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-6 shadow-sm">
+              <p className="whitespace-pre-line text-sm leading-7 text-[var(--foreground)]">{rq.passage}</p>
+            </div>
+
+            <div className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+              <p className="mb-4 font-semibold text-[var(--foreground)]">{rq.question}</p>
+              <div className="space-y-2">
+                {rq.options.map((opt) => {
+                  const isSelected = reviewSelected === opt.label;
+                  const isCorrect = opt.label === rq.answer;
+                  const isWrong = reviewChecked && isSelected && !isCorrect;
+                  const showCorrect = reviewChecked && isCorrect;
+                  return (
+                    <button
+                      key={opt.label}
+                      onClick={() => handleReviewSelect(opt.label)}
+                      className={`flex w-full items-start gap-3 rounded-xl border p-4 text-left text-sm transition-all ${
+                        showCorrect ? "border-emerald-400 bg-emerald-50 dark:bg-emerald-900/30"
+                        : isWrong ? "border-rose-400 bg-rose-50 dark:bg-rose-900/30"
+                        : isSelected ? "border-[var(--accent)] bg-[var(--accent)]/10"
+                        : "border-[var(--border)] bg-[var(--muted)]/30 hover:border-[var(--accent)]/50 hover:bg-[var(--accent)]/5"
+                      } ${reviewChecked ? "cursor-default" : "cursor-pointer"}`}
+                    >
+                      <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                        showCorrect ? "bg-emerald-500 text-white"
+                        : isWrong ? "bg-rose-500 text-white"
+                        : isSelected ? "bg-[var(--accent)] text-white"
+                        : "bg-[var(--muted)] text-[var(--muted-foreground)]"
+                      }`}>
+                        {opt.label}
+                      </span>
+                      <span className={showCorrect ? "font-medium text-emerald-700 dark:text-emerald-400" : isWrong ? "font-medium text-rose-700 dark:text-rose-400" : "text-[var(--foreground)]"}>
+                        {opt.text}
+                      </span>
+                      {showCorrect && <CheckCircle size={18} className="ml-auto shrink-0 text-emerald-500" />}
+                      {isWrong && <XCircle size={18} className="ml-auto shrink-0 text-rose-500" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {reviewChecked && (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`mt-4 rounded-xl p-4 text-sm ${
+                    reviewSelected === rq.answer
+                      ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"
+                      : "bg-rose-50 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400"
+                  }`}
+                >
+                  <p className="font-medium">
+                    {reviewSelected === rq.answer ? "✓ 정답! 오답 목록에서 제거됩니다." : `✗ 오답. 정답은 (${rq.answer})입니다.`}
+                  </p>
+                  {reviewSelected !== rq.answer && rq.explanation && (
+                    <p className="mt-2 text-xs leading-relaxed opacity-90">{rq.explanation}</p>
+                  )}
+                </motion.div>
+              )}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex items-center gap-3 pb-6 pt-2">
+          <div className="flex-1" />
+          {!reviewChecked ? (
+            <button
+              onClick={handleReviewCheck}
+              disabled={!reviewSelected}
+              className="rounded-xl bg-[var(--accent)] px-6 py-2.5 text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[var(--accent-hover)]"
+            >
+              확인하기
+            </button>
+          ) : (
+            <button
+              onClick={handleReviewNext}
+              className="flex items-center gap-1 rounded-xl bg-[var(--accent)] px-6 py-2.5 text-sm font-medium text-white hover:bg-[var(--accent-hover)]"
+            >
+              {reviewIndex === reviewSnapshot.length - 1 ? "복습 완료" : "다음"}
+              {reviewIndex < reviewSnapshot.length - 1 && <ChevronRight size={18} />}
+              {reviewIndex === reviewSnapshot.length - 1 && <Trophy size={16} />}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   if (showList) {
     return (
       <div className="mx-auto max-w-2xl space-y-4">
@@ -296,6 +518,16 @@ export default function TepsVocabPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            {wrongQIds.length > 0 && (
+              <button
+                onClick={enterReview}
+                className="flex items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-500/10 px-2.5 py-2 text-sm font-medium text-red-400 transition-colors hover:bg-red-500/20"
+                title="오답 복습"
+              >
+                <XCircle size={15} />
+                {wrongQIds.length}
+              </button>
+            )}
             <button
               onClick={() => setShowList(true)}
               className="rounded-lg border border-[var(--border)] p-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--muted)]"

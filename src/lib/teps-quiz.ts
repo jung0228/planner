@@ -13,6 +13,28 @@ export type QuizQuestion = {
 };
 
 const SESSION_KEY_PREFIX = "personal-site-teps-";
+const PERSISTENT_WRONG_KEY = "personal-site-teps-wrong-all";
+
+export function getPersistentWrongIds(): number[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const d = localStorage.getItem(PERSISTENT_WRONG_KEY);
+    return d ? JSON.parse(d) : [];
+  } catch { return []; }
+}
+
+function setPersistentWrongIds(ids: number[]) {
+  try { localStorage.setItem(PERSISTENT_WRONG_KEY, JSON.stringify(ids)); } catch {}
+}
+
+export function addPersistentWrong(wordId: number) {
+  const ids = getPersistentWrongIds();
+  if (!ids.includes(wordId)) setPersistentWrongIds([...ids, wordId]);
+}
+
+export function removePersistentWrong(wordId: number) {
+  setPersistentWrongIds(getPersistentWrongIds().filter(id => id !== wordId));
+}
 
 export function getQuizSession(date: string): QuizSession {
   if (typeof window === "undefined") return { correctCount: 0, answeredIds: [], wrongIds: [] };
@@ -61,6 +83,7 @@ export function recordCorrect(date: string, wordId: number): boolean {
     session.correctCount += 1;
   }
   saveQuizSession(date, session);
+  removePersistentWrong(wordId); // 맞히면 영구 오답 목록에서 제거
   return session.correctCount >= 20;
 }
 
@@ -71,4 +94,5 @@ export function recordWrong(date: string, wordId: number) {
     session.wrongIds.push(wordId);
     saveQuizSession(date, session);
   }
+  addPersistentWrong(wordId); // 틀리면 영구 오답 목록에 추가
 }
