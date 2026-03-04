@@ -21,3 +21,51 @@ CREATE POLICY "Allow all" ON events FOR ALL USING (true) WITH CHECK (true);
 -- 인덱스
 CREATE INDEX IF NOT EXISTS idx_events_start_date ON events(start_date);
 CREATE INDEX IF NOT EXISTS idx_events_end_date ON events(end_date);
+
+-- 퀘스트 테이블
+CREATE TABLE IF NOT EXISTS quests (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  rarity TEXT NOT NULL,
+  completed BOOLEAN DEFAULT FALSE,
+  date TEXT NOT NULL,
+  xp INTEGER NOT NULL,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+ALTER TABLE quests ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON quests FOR ALL USING (true) WITH CHECK (true);
+CREATE INDEX IF NOT EXISTS idx_quests_date ON quests(date);
+
+-- 퀘스트 스탯 (싱글턴)
+CREATE TABLE IF NOT EXISTS quest_stats (
+  id TEXT PRIMARY KEY,
+  total_xp INTEGER DEFAULT 0,
+  total_completions INTEGER DEFAULT 0,
+  dates_with_completion TEXT[] DEFAULT '{}'
+);
+ALTER TABLE quest_stats ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON quest_stats FOR ALL USING (true) WITH CHECK (true);
+
+-- 루틴 테이블
+CREATE TABLE IF NOT EXISTS routines (
+  id TEXT PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  rarity TEXT NOT NULL,
+  "order" INTEGER NOT NULL
+);
+ALTER TABLE routines ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON routines FOR ALL USING (true) WITH CHECK (true);
+
+-- 루틴 완료 기록
+CREATE TABLE IF NOT EXISTS routine_completions (
+  routine_id TEXT NOT NULL,
+  date TEXT NOT NULL,
+  completed BOOLEAN DEFAULT TRUE,
+  PRIMARY KEY (routine_id, date)
+);
+ALTER TABLE routine_completions ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all" ON routine_completions FOR ALL USING (true) WITH CHECK (true);
+CREATE INDEX IF NOT EXISTS idx_routine_completions_date ON routine_completions(date);

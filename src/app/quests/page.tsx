@@ -10,11 +10,21 @@ import {
   addQuest,
   toggleQuest,
   deleteQuest,
+  getStats,
   RARITY_CONFIG,
   type Quest,
   type QuestInput,
 } from "@/lib/quests";
-import { getRoutineQuestsForDate, toggleRoutineCompletion, removeRoutine, seedRoutines } from "@/lib/routines";
+import { getRoutineQuestsForDate, toggleRoutineCompletion, removeRoutine, seedRoutines, getAllRoutines } from "@/lib/routines";
+import {
+  pullFromSupabase,
+  upsertQuestToSupabase,
+  deleteQuestFromSupabase,
+  upsertStatsToSupabase,
+  syncRoutinesToSupabase,
+  deleteRoutineFromSupabase,
+  upsertRoutineCompletionToSupabase,
+} from "@/lib/quest-sync";
 import { QuestCard } from "@/components/quests/quest-card";
 import { AddQuestModal } from "@/components/quests/add-quest-modal";
 import { DailyStats } from "@/components/quests/daily-stats";
@@ -32,6 +42,7 @@ export default function QuestsPage() {
   const [activeTab, setActiveTab] = useState<"quests" | "ai">("quests");
   const [modalOpen, setModalOpen] = useState(false);
   const [routineModalOpen, setRoutineModalOpen] = useState(false);
+  const [syncKey, setSyncKey] = useState(0);
   const [xpToast, setXpToast] = useState<{ show: boolean; xp: number }>({
     show: false,
     xp: 0,
@@ -40,11 +51,16 @@ export default function QuestsPage() {
   const dateStr = selectedDate ? format(selectedDate, "yyyy-MM-dd") : "";
 
   useEffect(() => {
-    seedRoutines([
-      { title: "TEPS 리스닝 1세트 풀기", rarity: "rare" },
-      { title: "TEPS 단어 20개 외우기", rarity: "normal" },
-    ]);
-    setSelectedDate(new Date());
+    // Supabase에서 먼저 pull → localStorage 채움 → 루틴 시딩 → 렌더
+    pullFromSupabase().then(() => {
+      seedRoutines([
+        { title: "TEPS 리스닝 1세트 풀기", rarity: "rare" },
+        { title: "TEPS 단어 20개 외우기", rarity: "normal" },
+      ]);
+      syncRoutinesToSupabase(getAllRoutines());
+      setSyncKey((k) => k + 1);
+      setSelectedDate(new Date());
+    });
   }, []);
 
   const refreshQuests = () => {
@@ -52,7 +68,6 @@ export default function QuestsPage() {
     const routineQuests = getRoutineQuestsForDate(dateStr);
     const customQuests = getQuestsByDate(dateStr);
     const all = [...routineQuests, ...customQuests];
-    // 미완료 먼저, 완료된 건 아래로
     all.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
     setQuests(all);
   };
@@ -76,6 +91,8 @@ export default function QuestsPage() {
       next.sort((a, b) => (a.completed === b.completed ? 0 : a.completed ? 1 : -1));
       return next;
     });
+    upsertQuestToSupabase(quest);
+    upsertStatsToSupabase(getStats());
   };
 
   const handleToggle = (id: string) => {
@@ -86,6 +103,8 @@ export default function QuestsPage() {
       const nowCompleted = toggleRoutineCompletion(routineId, dateStr);
       refreshQuests();
       if (nowCompleted && !wasCompleted && quest) handleComplete(quest.xp);
+      upsertRoutineCompletionToSupabase(routineId, dateStr, nowCompleted);
+      upsertStatsToSupabase(getStats());
     } else {
       const updated = toggleQuest(id);
       if (updated) {
@@ -95,6 +114,8 @@ export default function QuestsPage() {
           return next;
         });
         if (updated.completed) handleComplete(updated.xp);
+        upsertQuestToSupabase(updated);
+        upsertStatsToSupabase(getStats());
       }
     }
   };
@@ -118,9 +139,13 @@ export default function QuestsPage() {
       const routineId = id.slice(8);
       removeRoutine(routineId);
       refreshQuests();
+      deleteRoutineFromSupabase(routineId);
+      upsertStatsToSupabase(getStats());
     } else {
       deleteQuest(id);
       setQuests((prev) => prev.filter((q) => q.id !== id));
+      deleteQuestFromSupabase(id);
+      upsertStatsToSupabase(getStats());
     }
   };
 
@@ -199,9 +224,9 @@ export default function QuestsPage() {
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* 사이드 패널: 레벨, 스트릭, 업적 */}
         <div className="flex w-full flex-col gap-4 lg:w-72 lg:shrink-0">
-          <LevelBadge />
-          <StreakBadge />
-          <AchievementBadges />
+          <LevelBadge key={syncKey} />
+          <StreakBadge key={syncKey} />
+          <AchievementBadges key={syncKey} />
         </div>
 
         {/* 메인: 탭 (퀘스트 | AI 채팅) */}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { generateId } from "@/lib/utils";
 import { motion } from "framer-motion";
 import {
   FileText,
@@ -53,7 +54,7 @@ function saveProjects(projects: ReviewProject[]) {
 
 function createEmptyProject(paperId = ""): ReviewProject {
   return {
-    id: crypto.randomUUID(),
+    id: generateId(),
     paperId: paperId.trim() || `paper-${Date.now()}`,
     incomingReviews: [],
     reviewPoints: [],
@@ -158,7 +159,7 @@ export default function ReviewsPage() {
       if (!res.ok) throw new Error(data.error || "오류 발생");
       const points: ReviewPoint[] = (data.points ?? []).map(
         (p: { reviewerIndex?: number; label: string; reviewerText: string; section?: string }) => ({
-          id: crypto.randomUUID(),
+          id: generateId(),
           reviewerIndex: p.reviewerIndex ?? 0,
           label: p.label || "P",
           reviewerText: p.reviewerText || "",
@@ -310,7 +311,7 @@ export default function ReviewsPage() {
   const addFeedback = () => {
     if (!current) return;
     const f: FeedbackItem = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       type: "meta",
       text: "",
       addedAt: new Date().toISOString(),

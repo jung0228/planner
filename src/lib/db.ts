@@ -1,4 +1,5 @@
 import { supabase } from "./supabase";
+import { generateId } from "./utils";
 
 export type Event = {
   id: string;
@@ -245,7 +246,7 @@ export async function getAllEvents(): Promise<Event[]> {
 export async function createEvent(input: EventInput): Promise<Event> {
   const event: Event = {
     ...input,
-    id: crypto.randomUUID(),
+    id: generateId(),
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };

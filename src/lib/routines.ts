@@ -1,6 +1,7 @@
 import type { QuestRarity } from "./quests";
 import { RARITY_CONFIG } from "./quests";
 import { getStats, setStats } from "./quests";
+import { generateId } from "./utils";
 
 export type Routine = {
   id: string;
@@ -56,7 +57,7 @@ export function addRoutine(input: Omit<Routine, "id" | "order">): Routine {
   const maxOrder = routines.length > 0 ? Math.max(...routines.map((r) => r.order)) : 0;
   const routine: Routine = {
     ...input,
-    id: crypto.randomUUID(),
+    id: generateId(),
     order: maxOrder + 1,
   };
   routines.push(routine);

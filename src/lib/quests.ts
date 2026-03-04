@@ -1,3 +1,5 @@
+import { generateId } from "./utils";
+
 export type QuestRarity = "normal" | "rare" | "epic" | "legendary";
 
 export type Quest = {
@@ -73,7 +75,7 @@ export function getQuestsByDate(date: string): Quest[] {
 export function addQuest(input: QuestInput): Quest {
   const quest: Quest = {
     ...input,
-    id: crypto.randomUUID(),
+    id: generateId(),
     completed: false,
   };
   const quests = getQuests();
