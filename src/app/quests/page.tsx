@@ -152,7 +152,7 @@ export default function QuestsPage() {
   return (
     <div className="min-h-screen">
       {/* 헤더 */}
-      <div className="-mx-8 -mt-8 mb-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] px-8 pb-8 pt-8 shadow-sm">
+      <div className="-mx-4 -mt-4 md:-mx-8 md:-mt-8 mb-6 md:mb-8 overflow-hidden rounded-2xl border border-[var(--border)] bg-[var(--card)] px-4 md:px-8 pb-6 md:pb-8 pt-5 md:pt-8 shadow-sm">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}

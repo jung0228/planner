@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Nunito } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Sidebar } from "@/components/sidebar";
@@ -12,7 +12,13 @@ const nunito = Nunito({
 
 export const metadata: Metadata = {
   title: "내 공간 | 일정 & 생산성",
-  description: "나만의 일정 관리, 할일, 메모를 한곳에서",
+  description: "나만의 일정 관리, 퀘스트, TEPS를 한곳에서",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
@@ -26,7 +32,7 @@ export default function RootLayout({
         <ThemeProvider>
           <div className="flex min-h-screen">
             <Sidebar />
-            <main className="ml-64 flex-1 p-8">{children}</main>
+            <main className="md:ml-64 flex-1 p-4 md:p-8 pb-24 md:pb-8">{children}</main>
           </div>
         </ThemeProvider>
       </body>
