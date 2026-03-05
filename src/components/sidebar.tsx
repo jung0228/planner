@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { Calendar, LayoutDashboard, ListTodo, StickyNote, Bookmark, Flame, Swords, BookOpen, ScrollText, Headphones, Pencil, GraduationCap } from "lucide-react";
+import { Calendar, LayoutDashboard, Flame, Swords, BookOpen, ScrollText, Headphones, Pencil, GraduationCap } from "lucide-react";
 import { useTheme } from "./theme-provider";
 import { cn } from "@/lib/utils";
 
@@ -16,9 +16,6 @@ const navItems = [
   { href: "/teps-listening", icon: Headphones, label: "TEPS 리스닝", active: true },
   { href: "/teps-vocab", icon: Pencil, label: "TEPS 어휘", active: true },
   { href: "/teps-grammar", icon: GraduationCap, label: "TEPS 문법", active: true },
-  { href: "/todos", icon: ListTodo, label: "할일", active: false, soon: true },
-  { href: "/notes", icon: StickyNote, label: "메모", active: false, soon: true },
-  { href: "/bookmarks", icon: Bookmark, label: "북마크", active: false, soon: true },
 ];
 
 export function Sidebar() {
@@ -42,7 +39,7 @@ export function Sidebar() {
             className={cn(
               "group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? pathname === href || (href !== "/" && pathname.startsWith(href))
+                ? pathname === href || (href !== "/" && pathname.startsWith(href + "/"))
                   ? "bg-[var(--accent)]/10 text-[var(--accent)]"
                   : "text-[var(--foreground)] hover:bg-[var(--border)]/50"
                 : "cursor-not-allowed text-[var(--muted)]"

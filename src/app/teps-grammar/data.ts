@@ -510,6 +510,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "have" }, { label: "b", text: "had" }, { label: "c", text: "will have" }, { label: "d", text: "would have" }],
     answer: "a",
+    explanation: "If절에서 미래 사실을 조건으로 나타낼 때 'if + 현재완료'를 씁니다. 'If I have finished the report by then'에서 현재완료 have가 미래완료를 대신합니다. will have는 조건절에 쓰지 않으며, would have는 가정법 과거완료입니다.",
   },
   {
     id: 62, part: "I", partLabel: "대화 빈칸 채우기",
@@ -517,6 +518,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "does" }, { label: "b", text: "did" }, { label: "c", text: "had done" }, { label: "d", text: "has done" }],
     answer: "b",
+    explanation: "whoever가 이끄는 절에서 '창문을 깼다'는 과거의 사실을 가리키므로 과거 시제 did가 적합합니다. whoever는 복합관계대명사로 'anyone who'의 의미이며, whoever절의 동사는 맥락에 맞는 시제를 씁니다.",
   },
   {
     id: 63, part: "I", partLabel: "대화 빈칸 채우기",
@@ -524,6 +526,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "doesn't want" }, { label: "b", text: "hadn't wanted" }, { label: "c", text: "won't want" }, { label: "d", text: "wouldn't want" }],
     answer: "a",
+    explanation: "'He said he doesn't want'는 시제 일치의 예외입니다. 지금도 여전히 사실인 상태(현재도 관여 원치 않음)는 현재 시제를 유지할 수 있습니다. 현재도 유효한 의지를 나타내므로 doesn't want가 가장 적합합니다.",
   },
   {
     id: 64, part: "I", partLabel: "대화 빈칸 채우기",
@@ -531,6 +534,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "such" }, { label: "b", text: "so" }, { label: "c", text: "much" }, { label: "d", text: "very" }],
     answer: "a",
+    explanation: "'such + (형용사) + 복수명사'는 '그런 종류의 ~'를 의미합니다. 'such situations'는 '그런 상황들'을 뜻합니다. so는 형용사·부사만 수식하며 명사 앞에 직접 쓰이지 않고, much/very는 명사를 수식할 수 없습니다.",
   },
   {
     id: 65, part: "I", partLabel: "대화 빈칸 채우기",
@@ -538,6 +542,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "would arrive sooner" }, { label: "b", text: "would have arrived sooner" }, { label: "c", text: "will arrive sooner" }, { label: "d", text: "arrived sooner" }],
     answer: "b",
+    explanation: "if절(had taken the subway)이 생략된 가정법 과거완료 문장입니다. 과거 사실의 반대를 가정하는 주절에는 'would have + p.p.'가 필요합니다. 'would have arrived sooner'가 정답입니다. would arrive는 가정법 과거입니다.",
   },
   {
     id: 66, part: "I", partLabel: "대화 빈칸 채우기",
@@ -545,6 +550,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "nothing" }, { label: "b", text: "anything" }, { label: "c", text: "everything" }, { label: "d", text: "something" }],
     answer: "a",
+    explanation: "'there's nothing we can do'는 '우리가 할 수 있는 것이 없다'는 의미입니다. 긍정 동사 there's 뒤에서 부정 의미를 나타낼 때 nothing을 씁니다. 'there's anything'은 비문법적이며, everything/something은 긍정적 의미입니다.",
   },
   {
     id: 67, part: "I", partLabel: "대화 빈칸 채우기",
@@ -552,6 +558,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "worked" }, { label: "b", text: "was working" }, { label: "c", text: "have worked" }, { label: "d", text: "would work" }],
     answer: "b",
+    explanation: "마감을 맞추기 위해 밤새 계속 작업하는 중이었다는 과거의 진행 동작이므로 과거진행형 was working이 적합합니다. worked(단순 과거)는 완료된 동작, have worked(현재완료)는 시제 불일치, would work는 가정이나 습관을 나타냅니다.",
   },
   {
     id: 68, part: "I", partLabel: "대화 빈칸 채우기",
@@ -559,6 +566,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "far" }, { label: "b", text: "much" }, { label: "c", text: "well" }, { label: "d", text: "quite" }],
     answer: "c",
+    explanation: "'well in advance'는 '훨씬 미리, 충분히 이른 시점에'라는 관용 표현입니다. well은 부사로 in advance를 강조합니다. far in advance도 가능하지만 'far'는 여기 문맥에서 어색하며, much/quite는 in advance와 관용적으로 쓰이지 않습니다.",
   },
   {
     id: 69, part: "I", partLabel: "대화 빈칸 채우기",
@@ -566,6 +574,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "need" }, { label: "b", text: "would" }, { label: "c", text: "must" }, { label: "d", text: "shall" }],
     answer: "c",
+    explanation: "'must have + p.p.'는 과거 사실에 대한 강한 논리적 추측을 나타냅니다. 배송이 어제 도착했어야 했는데 오지 않았으므로 무언가 잘못됐음에 틀림없다는 강한 추론에 must가 적합합니다. would는 의지·가정, shall은 약속·의지입니다.",
   },
   {
     id: 70, part: "I", partLabel: "대화 빈칸 채우기",
@@ -573,6 +582,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "will have" }, { label: "b", text: "would have" }, { label: "c", text: "would" }, { label: "d", text: "should" }],
     answer: "b",
+    explanation: "'Had + 주어 + p.p.'는 'If + 주어 + had p.p.'의 도치형(가정법 과거완료)입니다. 주절에는 'would have + p.p.'가 와야 하므로 'would have known'이 정답입니다. will have는 미래완료, would는 단순 가정법 과거입니다.",
   },
   {
     id: 71, part: "I", partLabel: "대화 빈칸 채우기",
@@ -580,6 +590,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "so" }, { label: "b", text: "but" }, { label: "c", text: "or" }, { label: "d", text: "for" }],
     answer: "b",
+    explanation: "많은 준비가 필요했지만 그만한 가치가 있었다는 역접(대조) 관계입니다. but은 역접 접속사로 'It took a lot of preparation, but it was worth it'이 자연스럽습니다. so는 결과, for는 이유, or는 선택을 나타냅니다.",
   },
   {
     id: 72, part: "I", partLabel: "대화 빈칸 채우기",
@@ -587,6 +598,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "that" }, { label: "b", text: "when" }, { label: "c", text: "where" }, { label: "d", text: "which" }],
     answer: "b",
+    explanation: "'Do you know + 의문사절'에서 '언제 시작하는지'를 물어보므로 when이 적합합니다. 'at 9 sharp'라는 시간 답변이 when을 뒷받침합니다. that은 확실한 사실의 명사절, where는 장소, which는 선택을 나타냅니다.",
   },
   {
     id: 73, part: "I", partLabel: "대화 빈칸 채우기",
@@ -594,6 +606,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "a long way" }, { label: "b", text: "long ways" }, { label: "c", text: "a ways long" }, { label: "d", text: "far long" }],
     answer: "a",
+    explanation: "'come a long way'는 '많이 발전했다, 크게 성장했다'는 관용 표현입니다. 'You've come a long way since you started'는 '시작한 이후 많이 성장했다'는 의미입니다. long ways, a ways long, far long은 모두 비표준 또는 비문법적 표현입니다.",
   },
   {
     id: 74, part: "I", partLabel: "대화 빈칸 채우기",
@@ -601,6 +614,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "what" }, { label: "b", text: "which" }, { label: "c", text: "that" }, { label: "d", text: "whether" }],
     answer: "c",
+    explanation: "'mention + that + 절'은 '~라고 언급하다'는 구조입니다. mention은 확실한 내용을 전달할 때 that절을 목적어로 취합니다. what은 의문사, which는 선택, whether는 '~인지 아닌지'의 불확실한 경우에 씁니다.",
   },
   {
     id: 75, part: "I", partLabel: "대화 빈칸 채우기",
@@ -608,6 +622,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "speed" }, { label: "b", text: "speeding" }, { label: "c", text: "speeds" }, { label: "d", text: "to speed" }],
     answer: "a",
+    explanation: "'Let's + 동사원형': Let's 뒤에는 반드시 동사원형이 옵니다. 'speed things up'은 '속도를 높이다'는 의미의 구동사입니다. speeding은 현재분사, speeds는 3인칭 단수, to speed는 to부정사로 Let's 뒤에 쓸 수 없습니다.",
   },
   {
     id: 76, part: "I", partLabel: "대화 빈칸 채우기",
@@ -615,6 +630,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "up" }, { label: "b", text: "out" }, { label: "c", text: "off" }, { label: "d", text: "through" }],
     answer: "b",
+    explanation: "'burn out'은 '(과로로) 기력이 소진되다, 번아웃되다'는 구동사입니다. burn up은 타서 없어지다, burn off는 소모하다, burn through는 빠르게 소진하다는 의미로 과로 맥락에 맞지 않습니다.",
   },
   {
     id: 77, part: "I", partLabel: "대화 빈칸 채우기",
@@ -622,6 +638,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "is" }, { label: "b", text: "has" }, { label: "c", text: "was" }, { label: "d", text: "had" }],
     answer: "c",
+    explanation: "어제 점검을 받았다는 과거 수동태가 필요합니다. 'It was inspected and cleared just yesterday'에서 was가 수동태 be동사입니다. is는 현재 수동, has는 현재완료 능동이 되어 수동 의미를 나타내지 못합니다.",
   },
   {
     id: 78, part: "I", partLabel: "대화 빈칸 채우기",
@@ -629,6 +646,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "capable" }, { label: "b", text: "capable enough" }, { label: "c", text: "qualified" }, { label: "d", text: "qualified enough" }],
     answer: "d",
+    explanation: "'more than qualified enough'는 '충분히 자격을 갖추고도 남는다'는 표현입니다. qualified는 자격/능력 요건 충족을 의미하며, enough를 더해 충분함을 강조합니다. 'more than capable'도 유사하지만 직책 자격 요건에는 qualified가 더 적합합니다.",
   },
   {
     id: 79, part: "I", partLabel: "대화 빈칸 채우기",
@@ -636,6 +654,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "call" }, { label: "b", text: "to call" }, { label: "c", text: "calling" }, { label: "d", text: "called" }],
     answer: "c",
+    explanation: "'suggest + 동명사(-ing)': suggest는 목적어로 동명사를 취합니다. 'suggest calling them'이 올바른 형태입니다. to부정사(to call)나 동사원형(call)은 suggest의 목적어로 쓰이지 않습니다.",
   },
   {
     id: 80, part: "I", partLabel: "대화 빈칸 채우기",
@@ -643,6 +662,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "which" }, { label: "b", text: "that" }, { label: "c", text: "what" }, { label: "d", text: "whatever" }],
     answer: "d",
+    explanation: "'make do with whatever we have'는 '있는 것으로 어떻게든 해결하다'는 의미입니다. whatever는 복합관계대명사로 불확정적 맥락에서 what보다 자연스럽습니다. which는 선행사가 필요하고, that은 여기서 관계대명사로 쓰이기 어렵습니다.",
   },
 
   // ──────────────── PART II : 추가 문장 빈칸 채우기 (Q81~100) ────────────────
@@ -652,6 +672,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "reviewing" }, { label: "b", text: "reviewed" }, { label: "c", text: "to review" }, { label: "d", text: "has reviewing" }],
     answer: "b",
+    explanation: "주어 'The committee'에 대한 서술어로 과거 시제 본동사가 필요합니다. 'reviewed the report'가 과거 사실을 나타내는 주절의 본동사입니다. reviewing은 현재분사로 본동사 역할 불가, to review는 부정사, has reviewing은 비문법적입니다.",
   },
   {
     id: 82, part: "II", partLabel: "문장 빈칸 채우기",
@@ -659,6 +680,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "search" }, { label: "b", text: "to search" }, { label: "c", text: "searched" }, { label: "d", text: "searching" }],
     answer: "d",
+    explanation: "'leave + 목적어 + 현재분사(-ing)'는 '~가 ~하는 상태로 남겨두다'는 구조입니다. 'left many researchers searching for words'는 '많은 연구자들이 말문이 막히게 했다'는 의미입니다. search(원형), to search(부정사), searched(수동 과거분사)는 이 구조에 맞지 않습니다.",
   },
   {
     id: 83, part: "II", partLabel: "문장 빈칸 채우기",
@@ -666,6 +688,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "did" }, { label: "b", text: "has" }, { label: "c", text: "was" }, { label: "d", text: "had" }],
     answer: "a",
+    explanation: "'Not until + 구/절' 도치: 부정어 Not until이 문두에 오면 주절에서 주어-조동사 도치가 일어납니다. 'Not until A did B'는 'A 이후에야 비로소 B했다'는 의미입니다. 과거 시제 도치이므로 did가 정답입니다.",
   },
   {
     id: 84, part: "II", partLabel: "문장 빈칸 채우기",
@@ -673,6 +696,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "remain" }, { label: "b", text: "remains" }, { label: "c", text: "remaining" }, { label: "d", text: "to remain" }],
     answer: "a",
+    explanation: "'요구/주장 동사 + that + 주어 + 동사원형(가정법 현재)': insist 뒤 that절에는 동사원형을 씁니다. 주어가 'the new park'(3인칭 단수)여도 동사원형 remain을 씁니다. remains는 직설법 현재, remaining은 분사, to remain은 부정사입니다.",
   },
   {
     id: 85, part: "II", partLabel: "문장 빈칸 채우기",
@@ -680,6 +704,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "is" }, { label: "b", text: "has" }, { label: "c", text: "does" }, { label: "d", text: "was" }],
     answer: "b",
+    explanation: "'Rarely + 조동사 + 주어': 부정 부사 Rarely가 문두에 오면 주어-조동사 도치가 일어납니다. 주어 'such a close collaboration'은 단수이며 현재완료 수동태이므로 'Rarely has ~ been attempted'가 맞습니다. is는 단순 현재, does는 단순 현재 도치, was는 과거 도치입니다.",
   },
   {
     id: 86, part: "II", partLabel: "문장 빈칸 채우기",
@@ -687,6 +712,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "who" }, { label: "b", text: "whom" }, { label: "c", text: "whose" }, { label: "d", text: "which" }],
     answer: "c",
+    explanation: "'관계대명사 whose + 명사': whose는 소유격 관계대명사로 선행사(researcher)의 소유물인 project를 나타냅니다. 'researcher whose project addresses'에서 whose가 researcher와 project를 연결합니다. who는 주격, whom은 목적격, which는 사람이 아닌 사물에 씁니다.",
   },
   {
     id: 87, part: "II", partLabel: "문장 빈칸 채우기",
@@ -694,6 +720,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "where" }, { label: "b", text: "which" }, { label: "c", text: "that" }, { label: "d", text: "when" }],
     answer: "a",
+    explanation: "'future'를 선행사로 하는 관계부사 where: 장소나 상황·배경을 나타내는 명사 뒤에 관계부사 where를 씁니다. 'a dystopian future where citizens are monitored'는 '시민들이 감시되는 디스토피아적 미래'를 의미합니다. which는 관계대명사, when은 시간입니다.",
   },
   {
     id: 88, part: "II", partLabel: "문장 빈칸 채우기",
@@ -701,6 +728,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "wide" }, { label: "b", text: "widely" }, { label: "c", text: "wider" }, { label: "d", text: "widest" }],
     answer: "b",
+    explanation: "과거분사 'praised'를 수식하는 부사 widely가 필요합니다. 'widely praised'는 '널리 칭찬받은'이라는 의미입니다. wide는 형용사(넓은), wider/widest는 비교급/최상급으로 과거분사를 수식하는 부사 역할을 할 수 없습니다.",
   },
   {
     id: 89, part: "II", partLabel: "문장 빈칸 채우기",
@@ -708,6 +736,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "reads" }, { label: "b", text: "read" }, { label: "c", text: "reading" }, { label: "d", text: "to read" }],
     answer: "b",
+    explanation: "'형용사 essential + that + 주어 + 동사원형': 당위성을 나타내는 형용사(essential/important/necessary) 뒤 that절에는 가정법 현재(동사원형)를 씁니다. every employee가 단수여도 reads(직설법)가 아닌 동사원형 read를 씁니다.",
   },
   {
     id: 90, part: "II", partLabel: "문장 빈칸 채우기",
@@ -715,6 +744,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "a" }, { label: "b", text: "the" }, { label: "c", text: "these" }, { label: "d", text: "those" }],
     answer: "c",
+    explanation: "'Given + 명사'는 '~을 고려하면'이라는 분사구문입니다. 현재의 특정 상황들을 가리키므로 지시형용사 these(이러한)가 적합합니다. those는 멀리 있는 것을 가리키고, a는 단수 불특정 명사 앞에, the는 이미 알려진 것 앞에 씁니다.",
   },
   {
     id: 91, part: "II", partLabel: "문장 빈칸 채우기",
@@ -722,6 +752,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "but also" }, { label: "b", text: "but yet" }, { label: "c", text: "as well" }, { label: "d", text: "and also" }],
     answer: "a",
+    explanation: "'not only A but also B': A뿐만 아니라 B도. not only와 짝을 이루는 상관접속사는 but also입니다. 'not only for her research but also for her contributions'가 병렬 구조를 이룹니다. but yet, as well, and also는 not only와 상관접속사 쌍을 이루지 않습니다.",
   },
   {
     id: 92, part: "II", partLabel: "문장 빈칸 채우기",
@@ -729,6 +760,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "more difficult" }, { label: "b", text: "the more difficult" }, { label: "c", text: "most difficult" }, { label: "d", text: "the most difficult" }],
     answer: "b",
+    explanation: "'The + 비교급 ~, the + 비교급 ~': '~하면 할수록 더 ~하다'는 비례 구문에서 두 절 모두 'the + 비교급'이 필요합니다. 'The older the technology, the more difficult it is'가 올바른 구조입니다. 관사 the 없이 'more difficult'만 쓰면 비문법적입니다.",
   },
   {
     id: 93, part: "II", partLabel: "문장 빈칸 채우기",
@@ -736,6 +768,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "rewrite" }, { label: "b", text: "to rewrite" }, { label: "c", text: "rewriting" }, { label: "d", text: "rewritten" }],
     answer: "a",
+    explanation: "'사역동사 make + 목적어 + 동사원형': make가 사역 동사로 쓰일 때 목적보어는 동사원형입니다. 'made his students rewrite'가 올바른 구조입니다. to rewrite(부정사), rewriting(현재분사)은 make의 목적보어로 쓰이지 않습니다.",
   },
   {
     id: 94, part: "II", partLabel: "문장 빈칸 채우기",
@@ -743,6 +776,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "already been" }, { label: "b", text: "been already" }, { label: "c", text: "already" }, { label: "d", text: "been" }],
     answer: "a",
+    explanation: "부사 already는 조동사와 과거분사 사이에 위치합니다. 'had already been furnished'에서 already는 had와 been 사이에 옵니다. 'been already furnished'는 already의 위치가 잘못됐고, already나 been만으로는 의미가 불완전합니다.",
   },
   {
     id: 95, part: "II", partLabel: "문장 빈칸 채우기",
@@ -750,6 +784,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "could" }, { label: "b", text: "ought to" }, { label: "c", text: "should" }, { label: "d", text: "might" }],
     answer: "b",
+    explanation: "'ought to have + p.p.'는 '~했어야 했는데(하지 않았다)'는 과거에 대한 도덕적 의무와 후회를 나타냅니다. 직원들에게 미리 알렸어야 했다는 도덕적 책임을 강조합니다. could have는 능력/가능성, might have는 약한 추측을 나타냅니다.",
   },
   {
     id: 96, part: "II", partLabel: "문장 빈칸 채우기",
@@ -757,6 +792,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "is found" }, { label: "b", text: "was found" }, { label: "c", text: "finds" }, { label: "d", text: "found" }],
     answer: "a",
+    explanation: "Whoever가 이끄는 명사절의 술어로 현재의 규정을 나타내야 합니다. 'is found responsible'은 'be found + 형용사'의 현재 수동태 구조입니다. was found는 과거, finds는 능동태, found만으로는 조동사 없이 본동사로 부적절합니다.",
   },
   {
     id: 97, part: "II", partLabel: "문장 빈칸 채우기",
@@ -764,6 +800,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "insufficient" }, { label: "b", text: "enough" }, { label: "c", text: "plenty of" }, { label: "d", text: "ample" }],
     answer: "a",
+    explanation: "'acquitted on the grounds that there was insufficient evidence'는 '불충분한 증거'로 무죄가 됐다는 의미입니다. 무죄 판결 이유에는 증거 부족이 필요합니다. enough/plenty of/ample은 모두 '충분한' 증거를 뜻해 맥락과 반대됩니다.",
   },
   {
     id: 98, part: "II", partLabel: "문장 빈칸 채우기",
@@ -771,6 +808,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "with" }, { label: "b", text: "at" }, { label: "c", text: "for" }, { label: "d", text: "by" }],
     answer: "a",
+    explanation: "'arrive with + 명사'는 '~을 가지고 도착하다'는 의미입니다. 'arrived with a clear set of objectives'는 '명확한 목표를 가지고 도착했다'를 뜻합니다. at은 도착 장소(arrive at), for는 목적/이유, by는 수단을 나타냅니다.",
   },
   {
     id: 99, part: "II", partLabel: "문장 빈칸 채우기",
@@ -778,6 +816,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "is" }, { label: "b", text: "was" }, { label: "c", text: "were" }, { label: "d", text: "had been" }],
     answer: "c",
+    explanation: "'as though + 가정법': 사실이 아닌 가상 상황이므로 가정법을 씁니다. 현재 시점의 가상 상황에는 가정법 과거(were)를 씁니다. she가 단수여도 were를 쓰는 것이 격식체 가정법입니다. was는 비격식체이지만 시험에서는 were가 정답입니다.",
   },
   {
     id: 100, part: "II", partLabel: "문장 빈칸 채우기",
@@ -785,6 +824,7 @@ export const questions: Question[] = [
     question: "빈칸에 들어갈 가장 알맞은 것을 고르시오.",
     options: [{ label: "a", text: "is" }, { label: "b", text: "was" }, { label: "c", text: "be" }, { label: "d", text: "will be" }],
     answer: "c",
+    explanation: "'요구 동사 ask that + 주어 + 동사원형(가정법 현재)': ask(요청하다) 뒤 that절에는 동사원형을 씁니다. 수동태이므로 'be submitted'가 정답입니다. is(현재 직설법), was(과거 직설법), will be(미래)는 가정법 현재를 요구하는 that절에 쓰지 않습니다.",
   },
 
   // ──────────────── PART III : 추가 오류 문장 찾기 (Q101~120) ────────────────
@@ -794,6 +834,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'every single days'가 오류입니다. every 뒤에는 반드시 단수명사가 오므로 'every single day'로 써야 합니다. every는 단수 취급하는 한정사로 복수명사와 함께 쓸 수 없습니다.",
   },
   {
     id: 102, part: "III", partLabel: "오류 문장 찾기",
@@ -801,6 +842,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "b",
+    explanation: "(b)에서 'can be maintaining'이 오류입니다. 수동태는 'be + 과거분사'여야 하므로 'can be maintained'로 고쳐야 합니다. 'be maintaining'은 능동 진행형으로 수동 의미를 나타낼 수 없습니다.",
   },
   {
     id: 103, part: "III", partLabel: "오류 문장 찾기",
@@ -808,6 +850,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "a",
+    explanation: "(a)에서 'often called the rainforests of the sea'가 어색합니다. 관계절 'which are often called the rainforests of the sea'로 써야 더 명확합니다. 또한 비유적 별칭에는 called보다 'referred to as'가 더 자연스럽습니다.",
   },
   {
     id: 104, part: "III", partLabel: "오류 문장 찾기",
@@ -815,6 +858,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'ended up to freeze'가 오류입니다. 'end up + 동명사(-ing)'가 올바른 구조입니다. 'ended up freezing at night'으로 고쳐야 합니다. end up 뒤에 to부정사는 쓰이지 않습니다.",
   },
   {
     id: 105, part: "III", partLabel: "오류 문장 찾기",
@@ -822,6 +866,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "b",
+    explanation: "(b)에서 'at greater risk for chronic conditions'에서 전치사 for 대신 of를 써야 합니다. 'at greater risk of chronic conditions'가 올바른 표현입니다. risk of는 특정 상태가 될 가능성을 나타내며, 만성 질환 발병 위험에는 of가 더 적합합니다.",
   },
   {
     id: 106, part: "III", partLabel: "오류 문장 찾기",
@@ -829,6 +874,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'ever since I had moved'가 오류입니다. 'ever since'는 과거부터 현재까지 이어지는 상황과 함께 쓰이며, since절에는 단순과거 'I moved'를 씁니다. had moved(과거완료)는 현재완료진행과 함께 쓰는 since절에 부적합합니다.",
   },
   {
     id: 107, part: "III", partLabel: "오류 문장 찾기",
@@ -836,6 +882,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'to encouraging consumers'가 오류입니다. to부정사의 to 뒤에는 동사원형이 와야 하므로 'to encourage consumers to switch'로 고쳐야 합니다. encouraging은 동명사/현재분사로 to부정사의 to 뒤에 쓸 수 없습니다.",
   },
   {
     id: 108, part: "III", partLabel: "오류 문장 찾기",
@@ -843,6 +890,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "b",
+    explanation: "(b)에서 'consider attend'가 오류입니다. 'consider + 동명사(-ing)': consider 뒤에는 동명사가 옵니다. 'consider attending some entrepreneurship workshops'로 고쳐야 합니다. 동사원형(attend)은 consider의 목적어로 쓰이지 않습니다.",
   },
   {
     id: 109, part: "III", partLabel: "오류 문장 찾기",
@@ -850,6 +898,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'the beginning the medieval era'가 오류입니다. 전치사 of가 빠졌으며 'the beginning of the medieval era'로 써야 합니다. 'the beginning + of + 명사'가 올바른 구조입니다.",
   },
   {
     id: 110, part: "III", partLabel: "오류 문장 찾기",
@@ -857,6 +906,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "b",
+    explanation: "(b)에서 'cooked perfect'가 오류입니다. 동사 cooked를 수식하는 것은 부사여야 하므로 'cooked perfectly'로 써야 합니다. perfect는 형용사이므로 동사를 직접 수식할 수 없습니다.",
   },
   {
     id: 111, part: "III", partLabel: "오류 문장 찾기",
@@ -864,6 +914,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'hardships, included harsh weather and bandits'가 오류입니다. '포함하여'는 현재분사 'including'을 써야 합니다. 'hardships, including harsh weather and bandits'가 올바른 표현입니다. included는 수동 의미의 과거분사입니다.",
   },
   {
     id: 112, part: "III", partLabel: "오류 문장 찾기",
@@ -871,6 +922,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'wanted to improved my Spanish'가 오류입니다. 'want to + 동사원형'이 맞으므로 'want to improve my Spanish'로 써야 합니다. to부정사의 to 뒤에는 동사원형이 와야 하며, improved는 과거형/과거분사입니다.",
   },
   {
     id: 113, part: "III", partLabel: "오류 문장 찾기",
@@ -878,6 +930,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'have begun to developed'가 오류입니다. 'begin to + 동사원형'이 맞으므로 'have begun to develop'으로 써야 합니다. to부정사의 to 뒤에는 동사원형이 와야 하며, developed는 과거형/과거분사입니다.",
   },
   {
     id: 114, part: "III", partLabel: "오류 문장 찾기",
@@ -885,6 +938,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'the fund for it'이 어색합니다. 여러 재원을 가리키므로 복수형 'the funds for it'이 더 적합합니다. 또는 재정 지원 전반을 가리키는 'the funding for it'으로 쓰는 것이 자연스럽습니다.",
   },
   {
     id: 115, part: "III", partLabel: "오류 문장 찾기",
@@ -892,6 +946,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'organisms that depending on it'이 오류입니다. 관계절의 동사는 정형동사여야 하므로 'that depend on it'으로 써야 합니다. depending은 현재분사로 관계절에서 정형동사 역할을 할 수 없습니다.",
   },
   {
     id: 116, part: "III", partLabel: "오류 문장 찾기",
@@ -899,6 +954,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'breathe and speaking clearly'가 오류입니다. 등위접속사 and로 연결된 병렬 구조에서 'breathe and speak clearly'로 써야 합니다. 'remember to breathe and (to) speak clearly'가 올바른 병렬 구조입니다.",
   },
   {
     id: 117, part: "III", partLabel: "오류 문장 찾기",
@@ -906,6 +962,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'reduce the incentive working'이 오류입니다. 'incentive to + 동사원형'이 올바른 구조이므로 'reduce the incentive to work'로 써야 합니다. incentive 뒤에는 to부정사가 오며, working(동명사/분사)은 쓰이지 않습니다.",
   },
   {
     id: 118, part: "III", partLabel: "오류 문장 찾기",
@@ -913,6 +970,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "c",
+    explanation: "(c)에서 'haven't been communicated clearly enough'가 오류입니다. communicate는 자동사로도 쓰이므로 'haven't been communicating clearly enough'(현재완료진행 능동) 또는 'haven't communicated clearly enough'로 써야 합니다. 'been communicated'는 수동태로 의미가 달라집니다.",
   },
   {
     id: 119, part: "III", partLabel: "오류 문장 찾기",
@@ -920,6 +978,7 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'the number of students... have continued'가 오류입니다. 'the number of + 복수명사'는 단수 취급하므로 'has continued'로 써야 합니다. 'a number of students'는 복수로 취급하지만 'the number of students'는 단수입니다.",
   },
   {
     id: 120, part: "III", partLabel: "오류 문장 찾기",
@@ -927,5 +986,6 @@ export const questions: Question[] = [
     question: "어색한 표현이나 문법 오류가 포함된 것을 고르시오.",
     options: [{ label: "a", text: "(a)" }, { label: "b", text: "(b)" }, { label: "c", text: "(c)" }, { label: "d", text: "(d)" }],
     answer: "d",
+    explanation: "(d)에서 'takes longer as we'd like'가 오류입니다. 비교급 longer 뒤에는 비교 대상을 도입하는 'than'이 와야 하므로 'takes longer than we'd like'로 써야 합니다. as는 동등 비교(as ~ as)에 씁니다.",
   },
 ];

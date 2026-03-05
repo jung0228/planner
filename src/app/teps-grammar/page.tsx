@@ -404,7 +404,7 @@ export default function TepsGrammarPage() {
                 <p className="font-medium">
                   {selected === q.answer ? "✓ 정답입니다!" : `✗ 오답입니다. 정답은 (${q.answer})입니다.`}
                 </p>
-                {selected !== q.answer && q.explanation && (
+                {q.explanation && (
                   <p className="mt-2 text-xs leading-relaxed opacity-90">{q.explanation}</p>
                 )}
               </motion.div>
