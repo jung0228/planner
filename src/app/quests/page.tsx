@@ -224,9 +224,9 @@ export default function QuestsPage() {
       <div className="flex flex-col gap-6 lg:flex-row lg:gap-8">
         {/* 사이드 패널: 레벨, 스트릭, 업적 */}
         <div className="flex w-full flex-col gap-4 lg:w-72 lg:shrink-0">
-          <LevelBadge key={syncKey} />
-          <StreakBadge key={syncKey} />
-          <AchievementBadges key={syncKey} />
+          <LevelBadge key={`level-${syncKey}`} />
+          <StreakBadge key={`streak-${syncKey}`} />
+          <AchievementBadges key={`achievements-${syncKey}`} />
         </div>
 
         {/* 메인: 탭 (퀘스트 | AI 채팅) */}

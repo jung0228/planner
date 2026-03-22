@@ -1,3 +1,4 @@
+import { supabase } from "./supabase";
 import type { Quest } from "./quests";
 import type { Routine } from "./routines";
 
@@ -12,31 +13,41 @@ type Stats = {
   totalCompletions?: number;
 };
 
+async function getCurrentUserId(): Promise<string | null> {
+  if (!supabase) return null;
+  const { data: { user } } = await supabase.auth.getUser();
+  return user?.id ?? null;
+}
+
 async function pushKey(key: string, value: unknown) {
-  try {
-    await fetch("/api/store", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ [key]: value }),
-    });
-  } catch {}
+  if (!supabase) return;
+  const userId = await getCurrentUserId();
+  if (!userId) return;
+  await supabase.from("user_store").upsert(
+    { user_id: userId, key, value, updated_at: new Date().toISOString() },
+    { onConflict: "user_id,key" }
+  );
 }
 
 // 서버 → localStorage (페이지 로드 시)
 export async function pullFromSupabase(): Promise<void> {
-  try {
-    const res = await fetch("/api/store");
-    if (!res.ok) return;
-    const data = await res.json();
+  if (!supabase) return;
+  const userId = await getCurrentUserId();
+  if (!userId) return;
 
-    if (data[QUESTS_KEY]) localStorage.setItem(QUESTS_KEY, JSON.stringify(data[QUESTS_KEY]));
-    if (data[STATS_KEY]) localStorage.setItem(STATS_KEY, JSON.stringify(data[STATS_KEY]));
-    if (data[ROUTINES_KEY]) localStorage.setItem(ROUTINES_KEY, JSON.stringify(data[ROUTINES_KEY]));
-    if (data[ROUTINE_COMPLETIONS_KEY]) localStorage.setItem(ROUTINE_COMPLETIONS_KEY, JSON.stringify(data[ROUTINE_COMPLETIONS_KEY]));
-  } catch {}
+  const { data } = await supabase
+    .from("user_store")
+    .select("key, value")
+    .eq("user_id", userId);
+
+  if (!data) return;
+  for (const row of data) {
+    if (row.value !== null && row.value !== undefined) {
+      localStorage.setItem(row.key, JSON.stringify(row.value));
+    }
+  }
 }
 
-// 퀘스트 변경 시: localStorage 전체를 서버에 저장
 export async function upsertQuestToSupabase(_quest: Quest): Promise<void> {
   try {
     const quests = JSON.parse(localStorage.getItem(QUESTS_KEY) ?? "[]");

@@ -10,6 +10,7 @@ import {
   type Routine,
 } from "@/lib/routines";
 import { RARITY_CONFIG, type QuestRarity } from "@/lib/quests";
+import { syncRoutinesToSupabase, deleteRoutineFromSupabase } from "@/lib/quest-sync";
 
 type Props = {
   isOpen: boolean;
@@ -37,20 +38,26 @@ export function RoutineManagerModal({ isOpen, onClose, onRoutinesChange }: Props
   const handleAdd = () => {
     if (!newTitle.trim()) return;
     addRoutine({ title: newTitle.trim(), rarity: newRarity });
-    setRoutines(getAllRoutines());
+    const updated = getAllRoutines();
+    setRoutines(updated);
     setNewTitle("");
+    syncRoutinesToSupabase(updated);
     onRoutinesChange();
   };
 
   const handleQuickAdd = (title: string, rarity: QuestRarity) => {
     addRoutine({ title, rarity });
-    setRoutines(getAllRoutines());
+    const updated = getAllRoutines();
+    setRoutines(updated);
+    syncRoutinesToSupabase(updated);
     onRoutinesChange();
   };
 
   const handleRemove = (id: string) => {
     removeRoutine(id);
-    setRoutines(getAllRoutines());
+    const updated = getAllRoutines();
+    setRoutines(updated);
+    deleteRoutineFromSupabase(id);
     onRoutinesChange();
   };
 

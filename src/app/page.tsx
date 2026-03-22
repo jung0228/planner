@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Calendar, ArrowRight, Sparkles, Swords, BookOpen, ScrollText, Headphones, Pencil, GraduationCap } from "lucide-react";
+import { Calendar, ArrowRight, Sparkles, Swords, Users } from "lucide-react";
 
 const apps = [
   {
@@ -20,39 +20,11 @@ const apps = [
     color: "from-amber-500 to-orange-700",
   },
   {
-    href: "/vocab",
-    icon: BookOpen,
-    title: "TEPS 단어",
-    description: "오늘의 TEPS 단어를 학습하고 복습해보세요",
+    href: "/social",
+    icon: Users,
+    title: "함께",
+    description: "멤버들의 일정과 공부량을 함께 확인하고 서로 경쟁해보세요",
     color: "from-violet-500 to-purple-600",
-  },
-  {
-    href: "/teps",
-    icon: ScrollText,
-    title: "TEPS 독해",
-    description: "공식 모의고사 독해 35문제 풀기. 바로 채점까지!",
-    color: "from-blue-500 to-indigo-600",
-  },
-  {
-    href: "/teps-listening",
-    icon: Headphones,
-    title: "TEPS 리스닝",
-    description: "TEPS 리스닝 문제를 들으며 실전 감각을 키워보세요",
-    color: "from-sky-500 to-cyan-600",
-  },
-  {
-    href: "/teps-vocab",
-    icon: Pencil,
-    title: "TEPS 어휘",
-    description: "오늘의 TEPS 어휘 문법 문제를 풀어보세요",
-    color: "from-rose-500 to-pink-600",
-  },
-  {
-    href: "/teps-grammar",
-    icon: GraduationCap,
-    title: "TEPS 문법",
-    description: "오늘의 TEPS 문법 30문제에 도전해보세요",
-    color: "from-orange-500 to-amber-600",
   },
 ];
 
@@ -73,7 +45,7 @@ export default function DashboardPage() {
           내 공간에 오신 걸 환영해요
         </h1>
         <p className="mt-2 text-[var(--muted-foreground)]">
-          일정, 할일, 메모를 한곳에서 관리하세요. 지금은 일정 앱부터 시작해볼까요?
+          일정과 퀘스트를 관리하고, 멤버들과 함께 동기부여해보세요
         </p>
       </motion.div>
 
@@ -89,22 +61,15 @@ export default function DashboardPage() {
               href={app.href}
               className="group block rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm transition-all hover:scale-[1.02] hover:shadow-md"
             >
-              <div
-                className={`mb-3 inline-flex rounded-xl bg-gradient-to-br ${app.color} p-3 text-white`}
-              >
+              <div className={`mb-3 inline-flex rounded-xl bg-gradient-to-br ${app.color} p-3 text-white`}>
                 <app.icon size={22} />
               </div>
               <div className="flex items-center justify-between gap-2">
                 <div className="min-w-0">
                   <h2 className="text-base font-semibold text-[var(--foreground)]">{app.title}</h2>
-                  <p className="mt-0.5 text-sm text-[var(--muted-foreground)] line-clamp-2">
-                    {app.description}
-                  </p>
+                  <p className="mt-0.5 text-sm text-[var(--muted-foreground)] line-clamp-2">{app.description}</p>
                 </div>
-                <ArrowRight
-                  size={18}
-                  className="shrink-0 text-[var(--accent)] transition-transform group-hover:translate-x-1"
-                />
+                <ArrowRight size={18} className="shrink-0 text-[var(--accent)] transition-transform group-hover:translate-x-1" />
               </div>
             </Link>
           </motion.div>

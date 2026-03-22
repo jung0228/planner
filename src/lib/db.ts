@@ -10,6 +10,7 @@ export type Event = {
   category: string;
   color: string;
   is_all_day: boolean;
+  user_id?: string;
   created_at?: string;
   updated_at?: string;
 };
@@ -212,9 +213,13 @@ export async function getEvents(
   endDate: Date
 ): Promise<Event[]> {
   if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
     const { data, error } = await supabase
       .from("events")
       .select("*")
+      .eq("user_id", user.id)
       .gte("start_date", startDate.toISOString())
       .lte("end_date", endDate.toISOString())
       .order("start_date", { ascending: true });
@@ -232,9 +237,13 @@ export async function getEvents(
 
 export async function getAllEvents(): Promise<Event[]> {
   if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return [];
+
     const { data, error } = await supabase
       .from("events")
       .select("*")
+      .eq("user_id", user.id)
       .order("start_date", { ascending: true });
 
     if (!error) return (data ?? []) as Event[];
@@ -252,7 +261,9 @@ export async function createEvent(input: EventInput): Promise<Event> {
   };
 
   if (supabase) {
-    const { data, error } = await supabase.from("events").insert(event).select().single();
+    const { data: { user } } = await supabase.auth.getUser();
+    const eventWithUser = { ...event, user_id: user?.id };
+    const { data, error } = await supabase.from("events").insert(eventWithUser).select().single();
     if (!error) return data as Event;
   }
 

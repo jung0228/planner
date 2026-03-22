@@ -2,19 +2,17 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, LayoutDashboard, Flame, Swords, BookOpen, ScrollText, Headphones, Pencil, GraduationCap } from "lucide-react";
+import { Calendar, LayoutDashboard, Flame, Swords, Users, Timer, LogOut } from "lucide-react";
 import { useTheme } from "./theme-provider";
+import { useAuth } from "./auth-provider";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: LayoutDashboard, label: "대시보드" },
   { href: "/calendar", icon: Calendar, label: "일정" },
   { href: "/quests", icon: Swords, label: "퀘스트" },
-  { href: "/vocab", icon: BookOpen, label: "TEPS 단어" },
-  { href: "/teps", icon: ScrollText, label: "TEPS 독해" },
-  { href: "/teps-listening", icon: Headphones, label: "TEPS 리스닝" },
-  { href: "/teps-vocab", icon: Pencil, label: "TEPS 어휘" },
-  { href: "/teps-grammar", icon: GraduationCap, label: "TEPS 문법" },
+  { href: "/pomodoro", icon: Timer, label: "뽀모도로" },
+  { href: "/social", icon: Users, label: "함께" },
 ];
 
 function isActive(pathname: string, href: string) {
@@ -24,6 +22,12 @@ function isActive(pathname: string, href: string) {
 export function Sidebar() {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
+
+  const displayName = (user?.user_metadata?.display_name as string | undefined)
+    ?? user?.user_metadata?.full_name as string | undefined
+    ?? user?.email?.split("@")[0]
+    ?? "사용자";
 
   return (
     <>
@@ -54,7 +58,28 @@ export function Sidebar() {
           ))}
         </nav>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-3">
+          {/* 사용자 정보 */}
+          {user && (
+            <div className="flex items-center gap-3 rounded-lg border border-[var(--border)] px-3 py-2.5">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--accent)]/20 text-sm font-bold text-[var(--accent)]">
+                {displayName[0]?.toUpperCase()}
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-[var(--foreground)]">{displayName}</p>
+                <p className="truncate text-xs text-[var(--muted-foreground)]">{user.email}</p>
+              </div>
+              <button
+                onClick={signOut}
+                className="shrink-0 rounded-md p-1 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--border)] hover:text-[var(--foreground)]"
+                title="로그아웃"
+              >
+                <LogOut size={15} />
+              </button>
+            </div>
+          )}
+
+          {/* 테마 */}
           <div className="rounded-lg border border-[var(--border)] p-2">
             <p className="mb-2 text-xs font-medium text-[var(--muted)]">테마</p>
             <div className="flex gap-1">
@@ -87,17 +112,13 @@ export function Sidebar() {
                 key={href}
                 href={href}
                 className={cn(
-                  "flex min-w-[72px] flex-1 flex-col items-center gap-0.5 px-2 py-2.5 text-center transition-colors",
-                  active
-                    ? "text-[var(--accent)]"
-                    : "text-[var(--muted-foreground)]"
+                  "flex min-w-[60px] flex-1 flex-col items-center gap-0.5 px-2 py-2.5 text-center transition-colors",
+                  active ? "text-[var(--accent)]" : "text-[var(--muted-foreground)]"
                 )}
               >
                 <Icon size={20} className="shrink-0" />
                 <span className="text-[10px] font-medium leading-tight whitespace-nowrap">{label}</span>
-                {active && (
-                  <span className="absolute bottom-0 h-0.5 w-8 rounded-full bg-[var(--accent)]" />
-                )}
+                {active && <span className="absolute bottom-0 h-0.5 w-8 rounded-full bg-[var(--accent)]" />}
               </Link>
             );
           })}
