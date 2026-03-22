@@ -115,6 +115,7 @@ export function toggleQuest(id: string): Quest | null {
   }
   setStats(stats);
   setQuests(quests);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("quests-updated"));
   return quests[idx];
 }
 

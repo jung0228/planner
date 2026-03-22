@@ -158,6 +158,19 @@ export default function BoardPage() {
     fetchOtherBoards();
   }, [loadMyItems, fetchOtherBoards]);
 
+  // 퀘스트/루틴 변경 감지 → 보드 즉시 갱신
+  useEffect(() => {
+    const refresh = () => loadMyItems();
+    window.addEventListener("quests-updated", refresh); // 같은 탭
+    window.addEventListener("storage", refresh);        // 다른 탭
+    window.addEventListener("focus", refresh);          // 탭 전환 복귀
+    return () => {
+      window.removeEventListener("quests-updated", refresh);
+      window.removeEventListener("storage", refresh);
+      window.removeEventListener("focus", refresh);
+    };
+  }, [loadMyItems]);
+
   const handleToggleItem = async (item: DisplayItem) => {
     if (item.type === "quest") {
       const questId = item.id.replace(/^quest-/, "");

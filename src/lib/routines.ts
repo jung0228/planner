@@ -164,5 +164,6 @@ export function toggleRoutineCompletion(routineId: string, date: string): boolea
   }
 
   setCompletions(completions);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("quests-updated"));
   return !wasCompleted;
 }
