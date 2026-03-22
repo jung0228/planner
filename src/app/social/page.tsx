@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, Trophy, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { Users, Trophy, Calendar, ChevronLeft, ChevronRight, Clock } from "lucide-react";
 import {
   addMonths, subMonths, startOfMonth, endOfMonth,
   format, eachDayOfInterval, isSameMonth, isSameDay,
@@ -59,6 +59,7 @@ function getCurrentStreak(dates: string[]): number {
 
 export default function SocialPage() {
   const { user } = useAuth();
+  const [tab, setTab] = useState<"schedule" | "study">("schedule");
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [events, setEvents] = useState<Event[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -120,10 +121,35 @@ export default function SocialPage() {
         </div>
       </motion.div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
-        {/* 공유 달력 */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="lg:col-span-2 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+      {/* 탭 */}
+      <div className="flex rounded-xl bg-[var(--muted)] p-1">
+        <button
+          onClick={() => setTab("schedule")}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors ${
+            tab === "schedule"
+              ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
+              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+          }`}
+        >
+          <Calendar size={16} />
+          일정
+        </button>
+        <button
+          onClick={() => setTab("study")}
+          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors ${
+            tab === "study"
+              ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
+              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+          }`}
+        >
+          <Clock size={16} />
+          공부 시간
+        </button>
+      </div>
+
+      {tab === "schedule" && (
+        <motion.div key="schedule" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
               <Calendar size={18} className="text-[var(--accent)]" />
@@ -199,9 +225,10 @@ export default function SocialPage() {
             </div>
           )}
         </motion.div>
+      )}
 
-        {/* 리더보드 */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+      {tab === "study" && (
+        <motion.div key="study" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
             <Trophy size={18} className="text-[var(--accent)]" />
@@ -218,20 +245,26 @@ export default function SocialPage() {
                 const streak = getCurrentStreak(entry.dates_with_completion);
                 const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
                 return (
-                  <div key={entry.user_id} className={`rounded-xl border p-3 ${isMe ? "border-[var(--accent)]/40 bg-[var(--accent)]/5" : "border-[var(--border)]"}`}>
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{medal}</span>
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white" style={{ backgroundColor: color }}>
+                  <div key={entry.user_id} className={`rounded-xl border p-4 ${isMe ? "border-[var(--accent)]/40 bg-[var(--accent)]/5" : "border-[var(--border)]"}`}>
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">{medal}</span>
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white" style={{ backgroundColor: color }}>
                         {name[0]?.toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-semibold text-[var(--foreground)]">{isMe ? `${name} (나)` : name}</p>
-                        <p className="text-xs text-[var(--muted-foreground)]">{entry.total_xp.toLocaleString()} XP</p>
+                        <p className="truncate font-semibold text-[var(--foreground)]">{isMe ? `${name} (나)` : name}</p>
+                        <p className="text-sm text-[var(--muted-foreground)]">{entry.total_xp.toLocaleString()} XP</p>
                       </div>
                     </div>
-                    <div className="mt-2 flex gap-3 text-xs text-[var(--muted-foreground)]">
-                      <span>완료 {entry.total_completions}개</span>
-                      {streak > 0 && <span>🔥 {streak}일 연속</span>}
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <div className="rounded-lg bg-[var(--muted)] px-3 py-2 text-center">
+                        <p className="text-xs text-[var(--muted-foreground)]">완료한 퀘스트</p>
+                        <p className="text-lg font-bold text-[var(--foreground)]">{entry.total_completions}</p>
+                      </div>
+                      <div className="rounded-lg bg-[var(--muted)] px-3 py-2 text-center">
+                        <p className="text-xs text-[var(--muted-foreground)]">연속 달성</p>
+                        <p className="text-lg font-bold text-[var(--foreground)]">{streak > 0 ? `🔥 ${streak}일` : "-"}</p>
+                      </div>
                     </div>
                   </div>
                 );
@@ -239,7 +272,7 @@ export default function SocialPage() {
             </div>
           )}
         </motion.div>
-      </div>
+      )}
     </div>
   );
 }
