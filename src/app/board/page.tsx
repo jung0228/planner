@@ -5,9 +5,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { LayoutGrid, Plus, Check, Trash2, Swords, Repeat, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth-provider";
-import { getQuestsByDate } from "@/lib/quests";
-import { getRoutineQuestsForDate } from "@/lib/routines";
-import { syncSharedBoardToSupabase, loadSharedBoard, type BoardItem, type SharedBoard } from "@/lib/quest-sync";
+import { getQuestsByDate, toggleQuest } from "@/lib/quests";
+import { getRoutineQuestsForDate, toggleRoutineCompletion } from "@/lib/routines";
+import { syncSharedBoardToSupabase, loadSharedBoard, upsertQuestToSupabase, upsertRoutineCompletionToSupabase, upsertStatsToSupabase, type BoardItem, type SharedBoard } from "@/lib/quest-sync";
+import { getStats } from "@/lib/quests";
 import { generateId } from "@/lib/utils";
 
 type Profile = {
@@ -157,6 +158,30 @@ export default function BoardPage() {
     fetchOtherBoards();
   }, [loadMyItems, fetchOtherBoards]);
 
+  const handleToggleItem = async (item: DisplayItem) => {
+    if (item.type === "quest") {
+      const questId = item.id.replace(/^quest-/, "");
+      const updated = toggleQuest(questId);
+      if (updated) {
+        await upsertQuestToSupabase(updated);
+        await upsertStatsToSupabase(getStats());
+      }
+    } else if (item.type === "routine") {
+      const routineId = item.id.replace(/^routine-/, "");
+      const newDone = !item.done;
+      toggleRoutineCompletion(routineId, today);
+      await upsertRoutineCompletionToSupabase(routineId, today, newDone);
+      await upsertStatsToSupabase(getStats());
+    } else {
+      // manual item
+      const next = myItems.map((i) => i.id === item.id ? { ...i, done: !i.done } : i);
+      setMyItems(next);
+      await syncMyBoard(next);
+      return;
+    }
+    loadMyItems();
+  };
+
   const handleAddManual = async () => {
     if (!newText.trim()) return;
     const item: DisplayItem = { id: generateId(), text: newText.trim(), done: false, type: "manual" };
@@ -256,10 +281,11 @@ export default function BoardPage() {
             <div className="space-y-1.5">
               {myItems.map((item) => (
                 <div key={item.id} className="group flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)]/60 px-3 py-2.5">
-                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
+                  <button onClick={() => handleToggleItem(item)}
+                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors hover:opacity-80"
                     style={{ borderColor: getUserColor(user.id, profiles), backgroundColor: item.done ? getUserColor(user.id, profiles) : "transparent" }}>
                     {item.done && <Check size={11} className="text-white" strokeWidth={3} />}
-                  </div>
+                  </button>
                   {typeIcon(item.type)}
                   <span className={`flex-1 text-sm ${item.done ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>
                     {item.text}
