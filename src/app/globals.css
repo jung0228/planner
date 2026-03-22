@@ -3,7 +3,7 @@
 :root {
   --background: #faf9f7;
   --foreground: #1a1a1a;
-  --muted: #737373;
+  --muted: #f0f0ef;
   --muted-foreground: #737373;
   --border: #e5e5e5;
   --card: #ffffff;
@@ -19,7 +19,7 @@
 .dark {
   --background: #0f0f0f;
   --foreground: #fafafa;
-  --muted: #a3a3a3;
+  --muted: #1e1e1e;
   --muted-foreground: #a3a3a3;
   --border: #262626;
   --card: #171717;
@@ -31,7 +31,7 @@
   :root.auto {
     --background: #0f0f0f;
     --foreground: #fafafa;
-    --muted: #a3a3a3;
+    --muted: #1e1e1e;
     --muted-foreground: #a3a3a3;
     --border: #262626;
     --card: #171717;

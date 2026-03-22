@@ -72,24 +72,24 @@ export function QuestCard({ quest, onToggle, onDelete, onComplete }: Props) {
             >
               {config.label}
             </span>
-            <span className="text-xs text-[var(--muted)]">+{quest.xp} XP</span>
+            <span className="text-xs text-[var(--muted-foreground)]">+{quest.xp} XP</span>
           </div>
           <h3
             className={cn(
               "font-semibold",
-              quest.completed && "line-through text-[var(--muted)]"
+              quest.completed && "line-through text-[var(--muted-foreground)]"
             )}
           >
             {quest.title}
           </h3>
           {quest.description && (
-            <p className="mt-1 text-sm text-[var(--muted)]">{quest.description}</p>
+            <p className="mt-1 text-sm text-[var(--muted-foreground)]">{quest.description}</p>
           )}
         </div>
 
         <button
           onClick={() => onDelete(quest.id)}
-          className="rounded p-2 text-[var(--muted)] opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-500 group-hover:opacity-100"
+          className="rounded p-2 text-[var(--muted-foreground)] opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-500 group-hover:opacity-100"
         >
           <Trash2 size={16} />
         </button>

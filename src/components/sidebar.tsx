@@ -81,7 +81,7 @@ export function Sidebar() {
 
           {/* 테마 */}
           <div className="rounded-lg border border-[var(--border)] p-2">
-            <p className="mb-2 text-xs font-medium text-[var(--muted)]">테마</p>
+            <p className="mb-2 text-xs font-medium text-[var(--muted-foreground)]">테마</p>
             <div className="flex gap-1">
               {(["light", "dark", "auto"] as const).map((t) => (
                 <button
@@ -91,7 +91,7 @@ export function Sidebar() {
                     "flex-1 rounded-md px-2 py-1.5 text-xs font-medium transition-colors",
                     theme === t
                       ? "bg-[var(--accent)] text-white"
-                      : "text-[var(--muted)] hover:bg-[var(--border)]"
+                      : "text-[var(--muted-foreground)] hover:bg-[var(--border)]"
                   )}
                 >
                   {t === "light" ? "☀️" : t === "dark" ? "🌙" : "🖥️"}
