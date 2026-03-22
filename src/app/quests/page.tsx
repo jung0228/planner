@@ -53,11 +53,14 @@ export default function QuestsPage() {
   useEffect(() => {
     // Supabase에서 먼저 pull → localStorage 채움 → 루틴 시딩 → 렌더
     pullFromSupabase().then(() => {
-      seedRoutines([
-        { title: "TEPS 리스닝 1세트 풀기", rarity: "rare" },
-        { title: "TEPS 단어 20개 외우기", rarity: "normal" },
-      ]);
-      syncRoutinesToSupabase(getAllRoutines());
+      // TEPS 루틴 자동 제거 (기존에 추가된 것 포함)
+      const TEPS_TITLES = ["TEPS 리스닝 1세트 풀기", "TEPS 단어 20개 외우기"];
+      const existing = getAllRoutines();
+      const toRemove = existing.filter((r) => TEPS_TITLES.includes(r.title));
+      if (toRemove.length > 0) {
+        toRemove.forEach((r) => removeRoutine(r.id));
+        syncRoutinesToSupabase(getAllRoutines());
+      }
       setSyncKey((k) => k + 1);
       setSelectedDate(new Date());
     });

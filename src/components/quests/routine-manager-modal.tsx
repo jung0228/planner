@@ -21,9 +21,10 @@ type Props = {
 const ROUTINE_SUGGESTIONS = [
   { title: "물 8잔 마시기", rarity: "normal" as QuestRarity },
   { title: "30분 운동하기", rarity: "normal" as QuestRarity },
-  { title: "1시간 공부/독서", rarity: "normal" as QuestRarity },
-  { title: "메모 정리하기", rarity: "rare" as QuestRarity },
+  { title: "1시간 공부/독서", rarity: "rare" as QuestRarity },
+  { title: "메모 정리하기", rarity: "normal" as QuestRarity },
   { title: "아침 일찍 일어나기", rarity: "normal" as QuestRarity },
+  { title: "10분 스트레칭", rarity: "normal" as QuestRarity },
 ];
 
 export function RoutineManagerModal({ isOpen, onClose, onRoutinesChange }: Props) {
