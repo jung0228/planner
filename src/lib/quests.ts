@@ -81,6 +81,7 @@ export function addQuest(input: QuestInput): Quest {
   const quests = getQuests();
   quests.push(quest);
   setQuests(quests);
+  if (typeof window !== "undefined") window.dispatchEvent(new Event("quests-updated"));
   return quest;
 }
 
