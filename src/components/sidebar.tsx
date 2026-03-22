@@ -2,14 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, LayoutDashboard, Flame, Swords, Users, Timer, LogOut, LayoutGrid } from "lucide-react";
+import { LayoutDashboard, Flame, Swords, Users, Timer, LogOut, LayoutGrid } from "lucide-react";
 import { useTheme } from "./theme-provider";
 import { useAuth } from "./auth-provider";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", icon: LayoutDashboard, label: "대시보드" },
-  { href: "/calendar", icon: Calendar, label: "일정" },
   { href: "/quests", icon: Swords, label: "퀘스트" },
   { href: "/pomodoro", icon: Timer, label: "뽀모도로" },
   { href: "/social", icon: Users, label: "함께" },
