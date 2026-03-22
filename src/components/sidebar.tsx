@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Calendar, LayoutDashboard, Flame, Swords, Users, Timer, LogOut } from "lucide-react";
+import { Calendar, LayoutDashboard, Flame, Swords, Users, Timer, LogOut, LayoutGrid } from "lucide-react";
 import { useTheme } from "./theme-provider";
 import { useAuth } from "./auth-provider";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ const navItems = [
   { href: "/quests", icon: Swords, label: "퀘스트" },
   { href: "/pomodoro", icon: Timer, label: "뽀모도로" },
   { href: "/social", icon: Users, label: "함께" },
+  { href: "/board", icon: LayoutGrid, label: "보드" },
 ];
 
 function isActive(pathname: string, href: string) {

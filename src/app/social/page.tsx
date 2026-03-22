@@ -1,24 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { Users, Trophy, Calendar, ChevronLeft, ChevronRight, Clock } from "lucide-react";
-import {
-  addMonths, subMonths, startOfMonth, endOfMonth,
-  format, eachDayOfInterval, isSameMonth, isSameDay,
-  startOfWeek, endOfWeek,
-} from "date-fns";
-import { ko } from "date-fns/locale";
+import { Users, Trophy, BookOpen, Clock, Flame, RefreshCw } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth-provider";
-
-type Event = {
-  id: string;
-  title: string;
-  start_date: string;
-  end_date: string;
-  user_id: string;
-};
+import type { StudyStatus } from "@/lib/quest-sync";
 
 type Profile = {
   id: string;
@@ -31,6 +18,11 @@ type UserStats = {
   total_xp: number;
   total_completions: number;
   dates_with_completion: string[];
+};
+
+type UserStudyStatus = {
+  user_id: string;
+  status: StudyStatus;
 };
 
 const PRESET_COLORS = ["#3B82F6","#10B981","#F59E0B","#EF4444","#8B5CF6","#EC4899","#14B8A6","#F97316"];
@@ -57,222 +49,228 @@ function getCurrentStreak(dates: string[]): number {
   return streak;
 }
 
+function getElapsedMinutes(startedAt: string): number {
+  const start = new Date(startedAt).getTime();
+  return Math.floor((Date.now() - start) / 60000);
+}
+
+function ElapsedTimer({ startedAt }: { startedAt: string }) {
+  const [elapsed, setElapsed] = useState(getElapsedMinutes(startedAt));
+  useEffect(() => {
+    const id = setInterval(() => setElapsed(getElapsedMinutes(startedAt)), 30000);
+    return () => clearInterval(id);
+  }, [startedAt]);
+  return <span>{elapsed}분째 집중 중</span>;
+}
+
 export default function SocialPage() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"schedule" | "study">("schedule");
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [events, setEvents] = useState<Event[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [stats, setStats] = useState<UserStats[]>([]);
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [studyStatuses, setStudyStatuses] = useState<UserStudyStatus[]>([]);
+  const [lastRefreshed, setLastRefreshed] = useState(new Date());
 
-  useEffect(() => {
-    if (!supabase) return;
-    const start = startOfMonth(currentMonth).toISOString();
-    const end = endOfMonth(currentMonth).toISOString();
-    supabase.from("events").select("id,title,start_date,end_date,user_id")
-      .gte("start_date", start).lte("end_date", end)
-      .then(({ data }) => setEvents((data ?? []) as Event[]));
-  }, [currentMonth]);
+  const today = new Date().toISOString().slice(0, 10);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!supabase) return;
-    supabase.from("profiles").select("id,display_name,avatar_color")
-      .then(({ data }) => { if (data) setProfiles(data as Profile[]); });
+
+    const [profilesRes, statsRes, studyRes] = await Promise.all([
+      supabase.from("profiles").select("id,display_name,avatar_color"),
+      supabase.from("user_store").select("user_id,value").eq("key", "personal-site-quest-stats"),
+      supabase.from("user_store").select("user_id,value").eq("key", "study-status"),
+    ]);
+
+    if (profilesRes.data) setProfiles(profilesRes.data as Profile[]);
+
+    if (statsRes.data) {
+      setStats(statsRes.data.map((row) => {
+        const v = row.value as { totalXp?: number; totalCompletions?: number; datesWithCompletion?: string[] } | null;
+        return {
+          user_id: row.user_id,
+          total_xp: v?.totalXp ?? 0,
+          total_completions: v?.totalCompletions ?? 0,
+          dates_with_completion: v?.datesWithCompletion ?? [],
+        };
+      }));
+    }
+
+    if (studyRes.data) {
+      setStudyStatuses(studyRes.data.map((row) => ({
+        user_id: row.user_id,
+        status: row.value as StudyStatus,
+      })));
+    }
+
+    setLastRefreshed(new Date());
   }, []);
 
+  useEffect(() => { fetchData(); }, [fetchData]);
+
+  // 30초마다 자동 갱신
   useEffect(() => {
-    if (!supabase) return;
-    supabase.from("user_store").select("user_id,value").eq("key", "personal-site-quest-stats")
-      .then(({ data }) => {
-        if (!data) return;
-        setStats(data.map((row) => {
-          const v = row.value as { totalXp?: number; totalCompletions?: number; datesWithCompletion?: string[] } | null;
-          return {
-            user_id: row.user_id,
-            total_xp: v?.totalXp ?? 0,
-            total_completions: v?.totalCompletions ?? 0,
-            dates_with_completion: v?.datesWithCompletion ?? [],
-          };
-        }));
-      });
-  }, []);
+    const id = setInterval(fetchData, 30000);
+    return () => clearInterval(id);
+  }, [fetchData]);
 
-  const calStart = startOfWeek(startOfMonth(currentMonth), { weekStartsOn: 0 });
-  const calEnd = endOfWeek(endOfMonth(currentMonth), { weekStartsOn: 0 });
-  const calDays = eachDayOfInterval({ start: calStart, end: calEnd });
-
-  const selectedDateStr = format(selectedDate, "yyyy-MM-dd");
-  const selectedEvents = events.filter((e) => e.start_date.slice(0, 10) <= selectedDateStr && selectedDateStr <= e.end_date.slice(0, 10));
-
-  const leaderboard = [...stats].sort((a, b) => b.total_xp - a.total_xp);
   const getName = (uid: string) => profiles.find((p) => p.id === uid)?.display_name ?? uid.slice(0, 8);
+  const leaderboard = [...stats].sort((a, b) => b.total_xp - a.total_xp);
+
+  const todayStudyStatuses = studyStatuses.filter((s) => s.status.date === today);
+  const activeStudiers = todayStudyStatuses.filter((s) => s.status.active);
+  const todayStudiers = todayStudyStatuses.filter((s) => s.status.sessions_today > 0 || s.status.active);
 
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
-        className="flex items-center gap-4 rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--accent)] text-white">
-          <Users size={28} />
+        className="flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--card)] p-4 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-[var(--accent)] text-white">
+            <Users size={28} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">함께</h1>
+            <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">지금 누가 공부 중인지, XP 현황을 확인해보세요</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">함께</h1>
-          <p className="mt-0.5 text-sm text-[var(--muted-foreground)]">멤버들의 일정과 퀘스트 현황을 확인해보세요</p>
-        </div>
+        <button onClick={fetchData}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs text-[var(--muted-foreground)] hover:bg-[var(--border)] transition-colors">
+          <RefreshCw size={14} />
+          {lastRefreshed.toLocaleTimeString("ko-KR", { hour: "2-digit", minute: "2-digit" })}
+        </button>
       </motion.div>
 
-      {/* 탭 */}
-      <div className="flex rounded-xl bg-[var(--muted)] p-1">
-        <button
-          onClick={() => setTab("schedule")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors ${
-            tab === "schedule"
-              ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          }`}
-        >
-          <Calendar size={16} />
-          일정
-        </button>
-        <button
-          onClick={() => setTab("study")}
-          className={`flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-medium transition-colors ${
-            tab === "study"
-              ? "bg-[var(--card)] text-[var(--foreground)] shadow-sm"
-              : "text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
-          }`}
-        >
-          <Clock size={16} />
-          공부 시간
-        </button>
-      </div>
+      {/* 지금 공부 중 */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+        className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+        <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+            <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
+          </span>
+          지금 공부 중
+          <span className="ml-1 rounded-full bg-green-500/20 px-2 py-0.5 text-xs font-semibold text-green-600">
+            {activeStudiers.length}명
+          </span>
+        </h2>
 
-      {tab === "schedule" && (
-        <motion.div key="schedule" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
-          className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
-              <Calendar size={18} className="text-[var(--accent)]" />
-              {format(currentMonth, "yyyy년 M월", { locale: ko })}
-            </h2>
-            <div className="flex gap-1">
-              <button onClick={() => setCurrentMonth((m) => subMonths(m, 1))} className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--border)]"><ChevronLeft size={18} /></button>
-              <button onClick={() => setCurrentMonth((m) => addMonths(m, 1))} className="rounded-lg p-1.5 text-[var(--muted-foreground)] hover:bg-[var(--border)]"><ChevronRight size={18} /></button>
-            </div>
-          </div>
-
-          <div className="mb-1 grid grid-cols-7 text-center">
-            {["일","월","화","수","목","금","토"].map((d) => (
-              <div key={d} className="py-1 text-xs font-medium text-[var(--muted-foreground)]">{d}</div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-7">
-            {calDays.map((day) => {
-              const dayStr = format(day, "yyyy-MM-dd");
-              const dayEvents = events.filter((e) => e.start_date.slice(0, 10) <= dayStr && dayStr <= e.end_date.slice(0, 10));
-              const isCurrentMonth = isSameMonth(day, currentMonth);
-              const isSelected = isSameDay(day, selectedDate);
-              const isToday = isSameDay(day, new Date());
+        {activeStudiers.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-[var(--border)] py-8 text-center text-sm text-[var(--muted-foreground)]">
+            아직 공부 중인 사람이 없어요. 뽀모도로를 시작해보세요!
+          </p>
+        ) : (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {activeStudiers.map(({ user_id, status }) => {
+              const color = getUserColor(user_id, profiles);
+              const name = getName(user_id);
+              const isMe = user_id === user?.id;
               return (
-                <button key={dayStr} onClick={() => setSelectedDate(day)}
-                  className={`relative flex min-h-[52px] flex-col items-center p-1 transition-colors hover:bg-[var(--border)]/30 ${isSelected ? "rounded-lg bg-[var(--accent)]/10" : ""} ${!isCurrentMonth ? "opacity-30" : ""}`}>
-                  <span className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-medium ${isToday ? "bg-[var(--accent)] text-white" : "text-[var(--foreground)]"}`}>
-                    {format(day, "d")}
-                  </span>
-                  <div className="mt-0.5 flex flex-wrap justify-center gap-0.5">
-                    {dayEvents.slice(0, 3).map((ev) => (
-                      <span key={ev.id} className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: getUserColor(ev.user_id, profiles) }} />
-                    ))}
-                    {dayEvents.length > 3 && <span className="text-[9px] text-[var(--muted-foreground)]">+{dayEvents.length - 3}</span>}
+                <div key={user_id}
+                  className="flex items-center gap-3 rounded-xl border border-green-500/30 bg-green-500/5 px-4 py-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                    style={{ backgroundColor: color }}>
+                    {name[0]?.toUpperCase()}
                   </div>
-                </button>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-[var(--foreground)]">{isMe ? `${name} (나)` : name}</p>
+                    <p className="text-xs text-green-600">
+                      {status.started_at ? <ElapsedTimer startedAt={status.started_at} /> : "집중 중"}
+                    </p>
+                  </div>
+                  <BookOpen size={16} className="text-green-500" />
+                </div>
               );
             })}
           </div>
+        )}
+      </motion.div>
 
-          {selectedEvents.length > 0 && (
-            <div className="mt-4 border-t border-[var(--border)] pt-4">
-              <p className="mb-2 text-xs font-medium text-[var(--muted-foreground)]">
-                {format(selectedDate, "M월 d일 (EEE)", { locale: ko })} 일정
-              </p>
-              <div className="space-y-2">
-                {selectedEvents.map((ev) => {
-                  const color = getUserColor(ev.user_id, profiles);
-                  const isMe = ev.user_id === user?.id;
-                  return (
-                    <div key={ev.id} className="flex items-center gap-2 rounded-lg border border-[var(--border)] px-3 py-2">
-                      <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-                      <span className="flex-1 truncate text-sm text-[var(--foreground)]">{ev.title}</span>
-                      <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium text-white" style={{ backgroundColor: color }}>
-                        {isMe ? "나" : getName(ev.user_id)}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {profiles.length > 0 && (
-            <div className="mt-4 flex flex-wrap gap-3">
-              {profiles.map((p) => (
-                <div key={p.id} className="flex items-center gap-1.5 text-xs text-[var(--muted-foreground)]">
-                  <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: p.avatar_color }} />
-                  {p.id === user?.id ? `${p.display_name} (나)` : p.display_name}
-                </div>
-              ))}
-            </div>
-          )}
-        </motion.div>
-      )}
-
-      {tab === "study" && (
-        <motion.div key="study" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+      {/* 오늘 공부 현황 */}
+      {todayStudiers.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
           className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
           <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
-            <Trophy size={18} className="text-[var(--accent)]" />
-            XP 리더보드
+            <Clock size={18} className="text-[var(--accent)]" />
+            오늘 공부 현황
           </h2>
-          {leaderboard.length === 0 ? (
-            <p className="text-sm text-[var(--muted-foreground)]">아직 데이터가 없어요</p>
-          ) : (
-            <div className="space-y-3">
-              {leaderboard.map((entry, i) => {
-                const color = getUserColor(entry.user_id, profiles);
-                const name = getName(entry.user_id);
-                const isMe = entry.user_id === user?.id;
-                const streak = getCurrentStreak(entry.dates_with_completion);
-                const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
-                return (
-                  <div key={entry.user_id} className={`rounded-xl border p-4 ${isMe ? "border-[var(--accent)]/40 bg-[var(--accent)]/5" : "border-[var(--border)]"}`}>
-                    <div className="flex items-center gap-3">
-                      <span className="text-xl">{medal}</span>
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white" style={{ backgroundColor: color }}>
+          <div className="space-y-3">
+            {[...todayStudiers].sort((a, b) => (b.status.today_minutes + (b.status.active ? getElapsedMinutes(b.status.started_at ?? "") : 0)) - (a.status.today_minutes + (a.status.active ? getElapsedMinutes(a.status.started_at ?? "") : 0))).map(({ user_id, status }) => {
+              const color = getUserColor(user_id, profiles);
+              const name = getName(user_id);
+              const isMe = user_id === user?.id;
+              const totalMin = status.today_minutes + (status.active && status.started_at ? getElapsedMinutes(status.started_at) : 0);
+              const maxMin = Math.max(...todayStudiers.map((s) => s.status.today_minutes + (s.status.active && s.status.started_at ? getElapsedMinutes(s.status.started_at) : 0)), 1);
+              const barWidth = Math.max(4, (totalMin / maxMin) * 100);
+              return (
+                <div key={user_id} className="space-y-1">
+                  <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white"
+                        style={{ backgroundColor: color }}>
                         {name[0]?.toUpperCase()}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate font-semibold text-[var(--foreground)]">{isMe ? `${name} (나)` : name}</p>
-                        <p className="text-sm text-[var(--muted-foreground)]">{entry.total_xp.toLocaleString()} XP</p>
-                      </div>
+                      <span className="font-medium text-[var(--foreground)]">{isMe ? `${name} (나)` : name}</span>
+                      {status.active && <span className="rounded-full bg-green-500/20 px-1.5 py-0.5 text-[10px] font-medium text-green-600">공부 중</span>}
                     </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div className="rounded-lg bg-[var(--muted)] px-3 py-2 text-center">
-                        <p className="text-xs text-[var(--muted-foreground)]">완료한 퀘스트</p>
-                        <p className="text-lg font-bold text-[var(--foreground)]">{entry.total_completions}</p>
-                      </div>
-                      <div className="rounded-lg bg-[var(--muted)] px-3 py-2 text-center">
-                        <p className="text-xs text-[var(--muted-foreground)]">연속 달성</p>
-                        <p className="text-lg font-bold text-[var(--foreground)]">{streak > 0 ? `🔥 ${streak}일` : "-"}</p>
-                      </div>
-                    </div>
+                    <span className="text-[var(--muted-foreground)]">{totalMin}분 · {status.sessions_today}세션</span>
                   </div>
-                );
-              })}
-            </div>
-          )}
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--muted)]">
+                    <div className="h-full rounded-full transition-all duration-500"
+                      style={{ width: `${barWidth}%`, backgroundColor: color }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </motion.div>
       )}
+
+      {/* XP 리더보드 */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+        className="rounded-2xl border border-[var(--border)] bg-[var(--card)] p-5 shadow-sm">
+        <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-[var(--foreground)]">
+          <Trophy size={18} className="text-[var(--accent)]" />
+          XP 리더보드
+        </h2>
+        {leaderboard.length === 0 ? (
+          <p className="text-sm text-[var(--muted-foreground)]">아직 데이터가 없어요</p>
+        ) : (
+          <div className="space-y-3">
+            {leaderboard.map((entry, i) => {
+              const color = getUserColor(entry.user_id, profiles);
+              const name = getName(entry.user_id);
+              const isMe = entry.user_id === user?.id;
+              const streak = getCurrentStreak(entry.dates_with_completion);
+              const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+              return (
+                <div key={entry.user_id}
+                  className={`rounded-xl border p-4 ${isMe ? "border-[var(--accent)]/40 bg-[var(--accent)]/5" : "border-[var(--border)]"}`}>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl">{medal}</span>
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+                      style={{ backgroundColor: color }}>
+                      {name[0]?.toUpperCase()}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-semibold text-[var(--foreground)]">{isMe ? `${name} (나)` : name}</p>
+                      <p className="text-sm text-[var(--muted-foreground)]">{entry.total_xp.toLocaleString()} XP</p>
+                    </div>
+                    {streak > 0 && (
+                      <div className="flex items-center gap-1 rounded-full bg-orange-500/10 px-2 py-1 text-xs font-semibold text-orange-500">
+                        <Flame size={12} />
+                        {streak}일
+                      </div>
+                    )}
+                  </div>
+                  <div className="mt-2 flex gap-2 text-xs text-[var(--muted-foreground)]">
+                    <span>완료 {entry.total_completions}개</span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </motion.div>
     </div>
   );
 }

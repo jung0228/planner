@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { ko } from "date-fns/locale";
 import { getStats, setStats, getQuestsByDate, toggleQuest, RARITY_CONFIG } from "@/lib/quests";
 import { getRoutineQuestsForDate, toggleRoutineCompletion } from "@/lib/routines";
-import { upsertQuestToSupabase, upsertRoutineCompletionToSupabase, upsertStatsToSupabase } from "@/lib/quest-sync";
+import { upsertQuestToSupabase, upsertRoutineCompletionToSupabase, upsertStatsToSupabase, syncStudyStatusToSupabase, loadStudyStatus, type StudyStatus } from "@/lib/quest-sync";
 
 type Mode = "focus" | "short" | "long";
 
@@ -156,6 +156,15 @@ export default function PomodoroPage() {
     setRunning(false);
   }, []);
 
+  const getOrInitStudyStatus = useCallback((): StudyStatus => {
+    const saved = loadStudyStatus();
+    const todayStr = getTodayStr();
+    if (saved.date !== todayStr) {
+      return { active: false, started_at: null, today_minutes: 0, sessions_today: 0, date: todayStr };
+    }
+    return saved;
+  }, []);
+
   const completeSelectedQuest = useCallback((questId: string, quests: QuestItem[]) => {
     const quest = quests.find((q) => q.id === questId);
     if (!quest || quest.completed) return;
@@ -191,6 +200,17 @@ export default function PomodoroPage() {
       saveRecord(record);
       setRecords(loadRecords());
 
+      // 공부 상태 동기화
+      const prevStatus = getOrInitStudyStatus();
+      const updatedStatus: StudyStatus = {
+        active: false,
+        started_at: null,
+        today_minutes: prevStatus.today_minutes + modeMinutes,
+        sessions_today: prevStatus.sessions_today + 1,
+        date: today,
+      };
+      syncStudyStatusToSupabase(updatedStatus);
+
       // XP 추가
       const stats = getStats();
       stats.totalXp = (stats.totalXp ?? 0) + XP_PER_SESSION;
@@ -217,7 +237,7 @@ export default function PomodoroPage() {
       setSecondsLeft(customMinutes.focus * 60);
       setBreakSuggestion(null);
     }
-  }, [mode, sessionCount, modeMinutes, stop, today, selectedQuestId, todayQuests, completeSelectedQuest, customMinutes]);
+  }, [mode, sessionCount, modeMinutes, stop, today, selectedQuestId, todayQuests, completeSelectedQuest, customMinutes, getOrInitStudyStatus]);
 
   useEffect(() => {
     if (running) {
@@ -436,7 +456,14 @@ export default function PomodoroPage() {
               className="flex h-12 w-12 items-center justify-center rounded-full border border-[var(--border)] bg-[var(--card)] text-[var(--muted-foreground)] shadow-sm transition-colors hover:bg-[var(--muted)]">
               <RotateCcw size={20} />
             </motion.button>
-            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => setRunning((r) => !r)}
+            <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => {
+              const next = !running;
+              setRunning(next);
+              if (mode === "focus") {
+                const status = getOrInitStudyStatus();
+                syncStudyStatusToSupabase({ ...status, active: next, started_at: next ? new Date().toISOString() : null });
+              }
+            }}
               className="flex h-20 w-20 items-center justify-center rounded-full text-white shadow-lg transition-opacity hover:opacity-90"
               style={{ backgroundColor: modeColor }}>
               {running ? <Pause size={32} /> : <Play size={32} className="translate-x-0.5" />}
