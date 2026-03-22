@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutGrid, Plus, Check, Trash2, Swords, Repeat, RefreshCw } from "lucide-react";
+import { LayoutGrid, Plus, Check, Trash2, Swords, Repeat, RefreshCw, Heart } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/components/auth-provider";
 import { getQuestsByDate, toggleQuest, getStats } from "@/lib/quests";
@@ -17,11 +17,10 @@ import { generateId } from "@/lib/utils";
 type Profile = { id: string; display_name: string; avatar_color: string };
 type DisplayItem = { id: string; text: string; done: boolean; type: "quest" | "routine" | "manual" };
 type UserBoardData = { user_id: string; items: DisplayItem[] };
-// reactions: { [targetUserId]: { [emoji]: userId[] } }
-type Reactions = Record<string, Record<string, string[]>>;
+// itemReactions: { [itemId]: userId[] }  — 좋아요 누른 유저 목록
+type ItemReactions = Record<string, string[]>;
 
 const PRESET_COLORS = ["#3B82F6","#10B981","#F59E0B","#EF4444","#8B5CF6","#EC4899","#14B8A6","#F97316"];
-const EMOJIS = ["👍","🔥","💪","🎉","❤️"];
 
 function getUserColor(userId: string, profiles: Profile[]): string {
   const p = profiles.find((p) => p.id === userId);
@@ -51,15 +50,19 @@ function buildItemsFromStore(questsRaw: unknown, routinesRaw: unknown, completio
   return items;
 }
 
+const REACTIONS_KEY_PREFIX = "item-reactions-";
+
 export default function BoardPage() {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [otherBoards, setOtherBoards] = useState<UserBoardData[]>([]);
   const [myItems, setMyItems] = useState<DisplayItem[]>([]);
-  const [reactions, setReactions] = useState<Reactions>({});
+  // 아이템별 좋아요 유저 목록 (모든 유저 합산)
+  const [itemReactions, setItemReactions] = useState<ItemReactions>({});
   const [newText, setNewText] = useState("");
   const [loading, setLoading] = useState(true);
   const today = getTodayStr();
+  const reactionsKey = `${REACTIONS_KEY_PREFIX}${today}`;
 
   const loadMyItems = useCallback(() => {
     const routineItems: DisplayItem[] = getRoutineQuestsForDate(today).map((q) => ({
@@ -87,15 +90,18 @@ export default function BoardPage() {
     if (profilesRes.data) setProfiles(profilesRes.data as Profile[]);
     if (allStoreRes.data) {
       const byUser: Record<string, Record<string, unknown>> = {};
-      const newReactions: Reactions = {};
+      // 모든 유저의 reactions 합산: { itemId: userId[] }
+      const merged: ItemReactions = {};
       for (const row of allStoreRes.data) {
-        if (row.key === `board-reactions-${today}`) {
-          // reactions는 모든 유저 것 합산
-          const r = row.value as Record<string, string[]> | null;
-          if (r) {
-            for (const [emoji, uids] of Object.entries(r)) {
-              if (!newReactions[row.user_id]) newReactions[row.user_id] = {};
-              newReactions[row.user_id][emoji] = uids as string[];
+        if (row.key === reactionsKey) {
+          // value = { [itemId]: true } — 이 유저가 좋아요 누른 아이템들
+          const liked = row.value as Record<string, boolean> | null;
+          if (liked) {
+            for (const itemId of Object.keys(liked)) {
+              if (liked[itemId]) {
+                if (!merged[itemId]) merged[itemId] = [];
+                if (!merged[itemId].includes(row.user_id)) merged[itemId].push(row.user_id);
+              }
             }
           }
           continue;
@@ -104,7 +110,7 @@ export default function BoardPage() {
         if (!byUser[row.user_id]) byUser[row.user_id] = {};
         byUser[row.user_id][row.key] = row.value;
       }
-      setReactions(newReactions);
+      setItemReactions(merged);
       const boards: UserBoardData[] = Object.entries(byUser).map(([uid, store]) => ({
         user_id: uid,
         items: buildItemsFromStore(
@@ -115,7 +121,7 @@ export default function BoardPage() {
       setOtherBoards(boards);
     }
     setLoading(false);
-  }, [user, today]);
+  }, [user, today, reactionsKey]);
 
   useEffect(() => {
     pullFromSupabase().then(() => loadMyItems());
@@ -143,21 +149,37 @@ export default function BoardPage() {
     if (item.type === "quest") {
       const questId = item.id.replace(/^quest-/, "");
       const updated = toggleQuest(questId);
-      if (updated) {
-        upsertQuestToSupabase(updated);
-        upsertStatsToSupabase(getStats());
-      }
+      if (updated) { upsertQuestToSupabase(updated); upsertStatsToSupabase(getStats()); }
     } else if (item.type === "routine") {
       const routineId = item.id.replace(/^routine-/, "");
-      const newDone = !item.done;
       toggleRoutineCompletion(routineId, today);
-      upsertRoutineCompletionToSupabase(routineId, today, newDone);
+      upsertRoutineCompletionToSupabase(routineId, today, !item.done);
       upsertStatsToSupabase(getStats());
     } else {
       const next = myItems.map((i) => i.id === item.id ? { ...i, done: !i.done } : i);
       setMyItems(next);
       syncMyBoard(next);
     }
+  };
+
+  const handleLike = async (itemId: string) => {
+    if (!user || !supabase) return;
+    const current = itemReactions[itemId] ?? [];
+    const iLiked = current.includes(user.id);
+    // 낙관적 업데이트
+    setItemReactions((prev) => ({
+      ...prev,
+      [itemId]: iLiked ? current.filter((id) => id !== user.id) : [...current, user.id],
+    }));
+    // 내 user_store에 저장: { [itemId]: boolean }
+    const { data } = await supabase.from("user_store").select("value")
+      .eq("user_id", user.id).eq("key", reactionsKey).maybeSingle();
+    const existing = (data?.value as Record<string, boolean> | null) ?? {};
+    existing[itemId] = !iLiked;
+    await supabase.from("user_store").upsert(
+      { user_id: user.id, key: reactionsKey, value: existing, updated_at: new Date().toISOString() },
+      { onConflict: "user_id,key" }
+    );
   };
 
   const handleAddManual = async () => {
@@ -175,46 +197,12 @@ export default function BoardPage() {
     await syncMyBoard(next);
   };
 
-  const handleReact = async (targetUserId: string, emoji: string) => {
-    if (!user || !supabase) return;
-    const current = reactions[targetUserId]?.[emoji] ?? [];
-    const hasReacted = current.includes(user.id);
-    const updated = hasReacted ? current.filter((id) => id !== user.id) : [...current, user.id];
-    const newTargetReactions = { ...(reactions[targetUserId] ?? {}), [emoji]: updated };
-    setReactions((prev) => ({ ...prev, [targetUserId]: newTargetReactions }));
-    // reactions는 "내가 다른 사람에게 보낸 것"을 내 user_store에 저장하지 않고,
-    // 대신 target 유저 id별로 집계. 여기선 내 own store에 내가 보낸 reaction을 저장
-    // 실제로는 reactions를 별도 key로 저장: board-reactions-{today} on MY store = { targetUserId: { emoji: [myId] } }
-    const myReactionsKey = `board-reactions-${today}`;
-    const { data } = await supabase.from("user_store").select("value").eq("user_id", user.id).eq("key", myReactionsKey).single();
-    const existing = (data?.value as Record<string, Record<string, string[]>> | null) ?? {};
-    if (!existing[targetUserId]) existing[targetUserId] = {};
-    const myEmojiList = existing[targetUserId][emoji] ?? [];
-    existing[targetUserId][emoji] = hasReacted
-      ? myEmojiList.filter((id) => id !== user.id)
-      : [...myEmojiList, user.id];
-    await supabase.from("user_store").upsert(
-      { user_id: user.id, key: myReactionsKey, value: existing, updated_at: new Date().toISOString() },
-      { onConflict: "user_id,key" }
-    );
-  };
-
   const getName = (uid: string) => profiles.find((p) => p.id === uid)?.display_name ?? uid.slice(0, 8);
   const myDone = myItems.filter((i) => i.done).length;
   const myTotal = myItems.length;
   const typeIcon = (type: DisplayItem["type"]) =>
     type === "routine" ? <Repeat size={11} className="shrink-0 opacity-40" /> :
     type === "quest" ? <Swords size={11} className="shrink-0 opacity-40" /> : null;
-
-  // 다른 유저에 대한 나의 reaction 집계 (fetchOtherBoards에서 로드된 reactions 구조 재정리)
-  // reactions[targetUserId][emoji] = [userId, ...] (각 사람이 보낸 reaction 합산)
-  const getReactionsFor = (targetUserId: string): Record<string, string[]> => {
-    const result: Record<string, string[]> = {};
-    // 모든 유저(나 포함)의 user_store에서 해당 target에 보낸 reaction을 합산
-    // 현재 reactions state는 row.user_id = 보낸사람, value = { targetId: { emoji: [senderId] } }
-    // 단순화: reactions[targetUserId] 를 직접 집계한 형태로 fetchOtherBoards에서 처리
-    return reactions[targetUserId] ?? result;
-  };
 
   return (
     <div className="space-y-6">
@@ -279,23 +267,31 @@ export default function BoardPage() {
             </p>
           ) : (
             <div className="space-y-1.5">
-              {myItems.map((item) => (
-                <div key={item.id} className="group flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)]/60 px-3 py-2.5">
-                  <button onClick={() => handleToggleItem(item)}
-                    className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors hover:opacity-80"
-                    style={{ borderColor: getUserColor(user.id, profiles), backgroundColor: item.done ? getUserColor(user.id, profiles) : "transparent" }}>
-                    {item.done && <Check size={11} className="text-white" strokeWidth={3} />}
-                  </button>
-                  {typeIcon(item.type)}
-                  <span className={`flex-1 text-sm ${item.done ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>{item.text}</span>
-                  {item.type === "manual" && (
-                    <button onClick={() => handleDeleteManual(item.id)}
-                      className="shrink-0 rounded p-1 text-transparent transition-all hover:text-red-400 group-hover:text-[var(--muted-foreground)]">
-                      <Trash2 size={13} />
+              {myItems.map((item) => {
+                const likes = itemReactions[item.id] ?? [];
+                return (
+                  <div key={item.id} className="group flex items-center gap-2.5 rounded-xl border border-[var(--border)] bg-[var(--background)]/60 px-3 py-2.5">
+                    <button onClick={() => handleToggleItem(item)}
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors hover:opacity-80"
+                      style={{ borderColor: getUserColor(user.id, profiles), backgroundColor: item.done ? getUserColor(user.id, profiles) : "transparent" }}>
+                      {item.done && <Check size={11} className="text-white" strokeWidth={3} />}
                     </button>
-                  )}
-                </div>
-              ))}
+                    {typeIcon(item.type)}
+                    <span className={`flex-1 text-sm ${item.done ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>{item.text}</span>
+                    {likes.length > 0 && (
+                      <span className="flex items-center gap-0.5 text-xs text-red-400">
+                        <Heart size={11} fill="currentColor" />{likes.length}
+                      </span>
+                    )}
+                    {item.type === "manual" && (
+                      <button onClick={() => handleDeleteManual(item.id)}
+                        className="shrink-0 rounded p-1 text-transparent transition-all hover:text-red-400 group-hover:text-[var(--muted-foreground)]">
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </motion.div>
@@ -315,7 +311,6 @@ export default function BoardPage() {
               const doneCount = items.filter((i) => i.done).length;
               const total = items.length;
               const pct = total > 0 ? Math.round((doneCount / total) * 100) : 0;
-              const myReactions = getReactionsFor(user_id);
 
               return (
                 <motion.div key={user_id}
@@ -341,38 +336,30 @@ export default function BoardPage() {
                   {items.length === 0 ? (
                     <p className="py-4 text-center text-xs text-[var(--muted-foreground)]">아직 할 일이 없어요</p>
                   ) : (
-                    <div className="mb-3 space-y-1.5">
-                      {items.map((item) => (
-                        <div key={item.id} className="flex items-center gap-2">
-                          <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2"
-                            style={{ borderColor: color, backgroundColor: item.done ? color : "transparent" }}>
-                            {item.done && <Check size={9} className="text-white" strokeWidth={3} />}
+                    <div className="space-y-1.5">
+                      {items.map((item) => {
+                        const likes = itemReactions[item.id] ?? [];
+                        const iLiked = user ? likes.includes(user.id) : false;
+                        return (
+                          <div key={item.id} className="group flex items-center gap-2 rounded-lg px-1 py-1">
+                            <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2"
+                              style={{ borderColor: color, backgroundColor: item.done ? color : "transparent" }}>
+                              {item.done && <Check size={9} className="text-white" strokeWidth={3} />}
+                            </div>
+                            {typeIcon(item.type)}
+                            <span className={`flex-1 text-sm ${item.done ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>{item.text}</span>
+                            <button onClick={() => handleLike(item.id)}
+                              className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${
+                                iLiked ? "text-red-400" : "text-[var(--border)] hover:text-red-300"
+                              }`}>
+                              <Heart size={12} fill={iLiked ? "currentColor" : "none"} />
+                              {likes.length > 0 && <span>{likes.length}</span>}
+                            </button>
                           </div>
-                          {typeIcon(item.type)}
-                          <span className={`text-sm ${item.done ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>{item.text}</span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
-
-                  {/* 공감 버튼 */}
-                  <div className="flex flex-wrap gap-1.5 border-t border-[var(--border)] pt-3">
-                    {EMOJIS.map((emoji) => {
-                      const reactors = myReactions[emoji] ?? [];
-                      const iReacted = user ? reactors.includes(user.id) : false;
-                      return (
-                        <button key={emoji} onClick={() => handleReact(user_id, emoji)}
-                          className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-sm transition-all ${
-                            iReacted
-                              ? "bg-[var(--accent)]/15 ring-1 ring-[var(--accent)]/40"
-                              : "bg-[var(--muted)] hover:bg-[var(--border)]"
-                          }`}>
-                          <span>{emoji}</span>
-                          {reactors.length > 0 && <span className="text-xs font-medium text-[var(--muted-foreground)]">{reactors.length}</span>}
-                        </button>
-                      );
-                    })}
-                  </div>
                 </motion.div>
               );
             })}
