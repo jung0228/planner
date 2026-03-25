@@ -146,20 +146,21 @@ export default function BoardPage() {
   }, [loadMyItems]);
 
   const handleToggleItem = async (item: DisplayItem) => {
+    // 낙관적 업데이트: 즉시 UI 반영
+    setMyItems((prev) => prev.map((i) => i.id === item.id ? { ...i, done: !i.done } : i));
+
     if (item.type === "quest") {
       const questId = item.id.replace(/^quest-/, "");
       const updated = toggleQuest(questId);
       if (updated) { upsertQuestToSupabase(updated); upsertStatsToSupabase(getStats()); }
-      loadMyItems();
+      else loadMyItems(); // 실패 시 원상복구
     } else if (item.type === "routine") {
       const routineId = item.id.replace(/^routine-/, "");
       toggleRoutineCompletion(routineId, today);
       upsertRoutineCompletionToSupabase(routineId, today, !item.done);
       upsertStatsToSupabase(getStats());
-      loadMyItems();
     } else {
       const next = myItems.map((i) => i.id === item.id ? { ...i, done: !i.done } : i);
-      setMyItems(next);
       syncMyBoard(next);
     }
   };

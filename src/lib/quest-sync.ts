@@ -55,9 +55,14 @@ export async function pullFromSupabase(): Promise<void> {
 
   if (!data) return;
   for (const row of data) {
-    if (row.value !== null && row.value !== undefined) {
-      localStorage.setItem(row.key, JSON.stringify(row.value));
-    }
+    if (row.value === null || row.value === undefined) continue;
+    // 빈 배열/객체로 기존 로컬 데이터 덮어쓰기 방지
+    const isEmpty =
+      (Array.isArray(row.value) && row.value.length === 0) ||
+      (typeof row.value === "object" && !Array.isArray(row.value) && Object.keys(row.value).length === 0);
+    const localRaw = localStorage.getItem(row.key);
+    if (isEmpty && localRaw) continue; // 로컬에 데이터 있으면 빈 Supabase 데이터로 덮어쓰지 않음
+    localStorage.setItem(row.key, JSON.stringify(row.value));
   }
 }
 
