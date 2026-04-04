@@ -35,11 +35,12 @@ async function getCurrentUserId(): Promise<string | null> {
 async function pushKey(key: string, value: unknown) {
   if (!supabase) return;
   const userId = await getCurrentUserId();
-  if (!userId) return;
-  await supabase.from("user_store").upsert(
+  if (!userId) { console.warn("[sync] pushKey: no userId, skipping", key); return; }
+  const { error } = await supabase.from("user_store").upsert(
     { user_id: userId, key, value, updated_at: new Date().toISOString() },
     { onConflict: "user_id,key" }
   );
+  if (error) console.error("[sync] pushKey failed:", key, error.message, error.details);
 }
 
 // 서버 → localStorage (페이지 로드 시)
