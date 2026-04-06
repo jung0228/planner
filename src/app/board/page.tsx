@@ -453,7 +453,7 @@ export default function BoardPage() {
                         </span>
                       )}
                       <button onClick={() => setOpenCommentItemId(isCommentOpen ? null : item.id)}
-                        className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${isCommentOpen || comments.length > 0 ? "text-[var(--accent)]" : "text-[var(--border)] hover:text-[var(--muted-foreground)]"}`}>
+                        className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${isCommentOpen || comments.length > 0 ? "text-[var(--accent)]" : "text-[var(--muted-foreground)]/50 hover:text-[var(--muted-foreground)]"}`}>
                         <MessageCircle size={12} />{comments.length > 0 && <span>{comments.length}</span>}
                       </button>
                       {item.type === "manual" && (
@@ -473,7 +473,7 @@ export default function BoardPage() {
                               <span className="flex-1 text-xs text-[var(--foreground)]">{c.text}</span>
                               {user && c.userId === user.id && (
                                 <button onClick={() => handleDeleteComment(item.id, c.id)}
-                                  className="shrink-0 rounded p-0.5 text-transparent transition-all hover:text-red-400 group-hover/comment:text-[var(--muted-foreground)] active:text-red-400">
+                                  className="shrink-0 rounded p-0.5 text-[var(--muted-foreground)]/40 transition-all hover:text-red-400 active:text-red-400">
                                   <X size={10} />
                                 </button>
                               )}
@@ -569,12 +569,12 @@ export default function BoardPage() {
                               {typeIcon(item.type)}
                               <span className={`flex-1 text-sm ${item.done ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>{item.text}</span>
                               <button onClick={() => handleLike(item.id)}
-                                className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${iLiked ? "text-red-400" : "text-[var(--border)] hover:text-red-300"}`}>
+                                className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${iLiked ? "text-red-400" : "text-[var(--muted-foreground)]/50 hover:text-red-300"}`}>
                                 <Heart size={12} fill={iLiked ? "currentColor" : "none"} />
                                 {likes.length > 0 && <span>{likes.length}</span>}
                               </button>
                               <button onClick={() => setOpenCommentItemId(isCommentOpen ? null : item.id)}
-                                className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${isCommentOpen || comments.length > 0 ? "text-[var(--accent)]" : "text-[var(--border)] hover:text-[var(--muted-foreground)]"}`}>
+                                className={`flex items-center gap-0.5 rounded-full px-1.5 py-0.5 text-xs transition-all ${isCommentOpen || comments.length > 0 ? "text-[var(--accent)]" : "text-[var(--muted-foreground)]/50 hover:text-[var(--muted-foreground)]"}`}>
                                 <MessageCircle size={12} />{comments.length > 0 && <span>{comments.length}</span>}
                               </button>
                             </div>
