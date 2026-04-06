@@ -89,7 +89,7 @@ export function QuestCard({ quest, onToggle, onDelete, onComplete }: Props) {
 
         <button
           onClick={() => onDelete(quest.id)}
-          className="rounded p-2 text-[var(--muted-foreground)] opacity-0 transition-opacity hover:bg-red-500/20 hover:text-red-500 group-hover:opacity-100"
+          className="rounded p-2 text-[var(--muted-foreground)] opacity-30 transition-opacity hover:bg-red-500/20 hover:text-red-500 hover:opacity-100 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
         >
           <Trash2 size={16} />
         </button>
