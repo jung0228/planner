@@ -20,6 +20,17 @@ export type StudyStatus = {
 export type BoardItem = { id: string; text: string; done: boolean };
 export type SharedBoard = { date: string; items: BoardItem[] };
 
+export type Challenge = {
+  id: string;
+  toUserId: string;
+  title: string;
+  rarity: "normal" | "rare" | "epic" | "legendary";
+  xp: number;
+  ts: string;
+};
+
+export type Comment = { userId: string; text: string; ts: string };
+
 type Stats = {
   totalXp: number;
   datesWithCompletion: string[];
@@ -138,6 +149,49 @@ export async function syncSharedBoardToSupabase(date: string, board: SharedBoard
     localStorage.setItem(`${SHARED_BOARD_KEY}-${date}`, JSON.stringify(board));
     await pushKey(`${SHARED_BOARD_KEY}-${date}`, board);
   } catch {}
+}
+
+const CHALLENGES_KEY = "quest-challenges-out";
+const DISMISSED_KEY = "quest-challenges-dismissed";
+const COMMENTS_KEY_PREFIX = "item-comments-";
+
+export function loadMyChallenges(): Challenge[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(CHALLENGES_KEY) ?? "[]"); } catch { return []; }
+}
+
+export async function sendChallengeToUser(challenge: Challenge): Promise<void> {
+  const all = loadMyChallenges();
+  all.push(challenge);
+  localStorage.setItem(CHALLENGES_KEY, JSON.stringify(all));
+  await pushKey(CHALLENGES_KEY, all);
+}
+
+export function loadDismissed(): string[] {
+  if (typeof window === "undefined") return [];
+  try { return JSON.parse(localStorage.getItem(DISMISSED_KEY) ?? "[]"); } catch { return []; }
+}
+
+export async function dismissChallenge(challengeId: string): Promise<void> {
+  const dismissed = loadDismissed();
+  if (!dismissed.includes(challengeId)) {
+    dismissed.push(challengeId);
+    localStorage.setItem(DISMISSED_KEY, JSON.stringify(dismissed));
+    await pushKey(DISMISSED_KEY, dismissed);
+  }
+}
+
+export function loadMyItemComments(date: string): Record<string, Comment[]> {
+  if (typeof window === "undefined") return {};
+  try { return JSON.parse(localStorage.getItem(`${COMMENTS_KEY_PREFIX}${date}`) ?? "{}"); } catch { return {}; }
+}
+
+export async function addItemComment(date: string, itemId: string, comment: Comment): Promise<void> {
+  const all = loadMyItemComments(date);
+  if (!all[itemId]) all[itemId] = [];
+  all[itemId].push(comment);
+  localStorage.setItem(`${COMMENTS_KEY_PREFIX}${date}`, JSON.stringify(all));
+  await pushKey(`${COMMENTS_KEY_PREFIX}${date}`, all);
 }
 
 export async function upsertRoutineCompletionToSupabase(

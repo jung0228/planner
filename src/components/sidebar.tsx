@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Flame, Swords, Users, Timer, LogOut, LayoutGrid } from "lucide-react";
+import { LayoutDashboard, Flame, Swords, Users, Timer, LogOut, LayoutGrid, BarChart2 } from "lucide-react";
 import { useTheme } from "./theme-provider";
 import { useAuth } from "./auth-provider";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ const navItems = [
   { href: "/pomodoro", icon: Timer, label: "뽀모도로" },
   { href: "/social", icon: Users, label: "함께" },
   { href: "/board", icon: LayoutGrid, label: "보드" },
+  { href: "/stats", icon: BarChart2, label: "통계" },
 ];
 
 function isActive(pathname: string, href: string) {
