@@ -28,8 +28,8 @@ type Stats = {
 
 async function getCurrentUserId(): Promise<string | null> {
   if (!supabase) return null;
-  const { data: { user } } = await supabase.auth.getUser();
-  return user?.id ?? null;
+  const { data: { session } } = await supabase.auth.getSession();
+  return session?.user?.id ?? null;
 }
 
 async function pushKey(key: string, value: unknown) {

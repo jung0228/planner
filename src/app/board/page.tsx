@@ -137,11 +137,9 @@ export default function BoardPage() {
     const refresh = () => loadMyItems();
     window.addEventListener("quests-updated", refresh);
     window.addEventListener("storage", refresh);
-    window.addEventListener("focus", refresh);
     return () => {
       window.removeEventListener("quests-updated", refresh);
       window.removeEventListener("storage", refresh);
-      window.removeEventListener("focus", refresh);
     };
   }, [loadMyItems]);
 
