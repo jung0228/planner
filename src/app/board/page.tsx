@@ -14,7 +14,7 @@ import {
   syncSharedBoardToSupabase, loadSharedBoard, pullFromSupabase,
   upsertQuestToSupabase, upsertRoutineCompletionToSupabase, upsertStatsToSupabase,
   sendChallengeToUser, loadDismissed, dismissChallenge,
-  loadMyItemComments, addItemComment,
+  loadMyItemComments, addItemComment, deleteItemComment,
   type BoardItem, type SharedBoard, type Challenge, type Comment,
 } from "@/lib/quest-sync";
 import { generateId } from "@/lib/utils";
@@ -254,13 +254,21 @@ export default function BoardPage() {
 
   const handleAddComment = async (itemId: string) => {
     if (!user || !commentText.trim()) return;
-    const comment: Comment = { userId: user.id, text: commentText.trim(), ts: new Date().toISOString() };
+    const comment: Comment = { id: generateId(), userId: user.id, text: commentText.trim(), ts: new Date().toISOString() };
     setAllComments((prev) => ({
       ...prev,
       [itemId]: [...(prev[itemId] ?? []), comment],
     }));
     setCommentText("");
     await addItemComment(today, itemId, comment);
+  };
+
+  const handleDeleteComment = async (itemId: string, commentId: string) => {
+    setAllComments((prev) => ({
+      ...prev,
+      [itemId]: (prev[itemId] ?? []).filter((c) => c.id !== commentId),
+    }));
+    await deleteItemComment(today, itemId, commentId);
   };
 
   const handleAddManual = async () => {
@@ -460,9 +468,15 @@ export default function BoardPage() {
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
                           className="overflow-hidden rounded-b-xl border border-t-0 border-[var(--border)] bg-[var(--background)]/40 px-3 pb-2 pt-2">
                           {comments.map((c, i) => (
-                            <div key={i} className="mb-1 flex items-start gap-1.5">
-                              <span className="mt-0.5 text-xs font-medium" style={{ color: getUserColor(c.userId, profiles) }}>{getName(c.userId)}</span>
-                              <span className="text-xs text-[var(--foreground)]">{c.text}</span>
+                            <div key={i} className="group/comment mb-1 flex items-start gap-1.5">
+                              <span className="mt-0.5 shrink-0 text-xs font-medium" style={{ color: getUserColor(c.userId, profiles) }}>{getName(c.userId)}</span>
+                              <span className="flex-1 text-xs text-[var(--foreground)]">{c.text}</span>
+                              {user && c.userId === user.id && (
+                                <button onClick={() => handleDeleteComment(item.id, c.id)}
+                                  className="shrink-0 rounded p-0.5 text-transparent transition-all hover:text-red-400 group-hover/comment:text-[var(--muted-foreground)] active:text-red-400">
+                                  <X size={10} />
+                                </button>
+                              )}
                             </div>
                           ))}
                           <div className="mt-2 flex gap-1.5">

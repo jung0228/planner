@@ -29,7 +29,7 @@ export type Challenge = {
   ts: string;
 };
 
-export type Comment = { userId: string; text: string; ts: string };
+export type Comment = { id: string; userId: string; text: string; ts: string };
 
 type Stats = {
   totalXp: number;
@@ -190,6 +190,14 @@ export async function addItemComment(date: string, itemId: string, comment: Comm
   const all = loadMyItemComments(date);
   if (!all[itemId]) all[itemId] = [];
   all[itemId].push(comment);
+  localStorage.setItem(`${COMMENTS_KEY_PREFIX}${date}`, JSON.stringify(all));
+  await pushKey(`${COMMENTS_KEY_PREFIX}${date}`, all);
+}
+
+export async function deleteItemComment(date: string, itemId: string, commentId: string): Promise<void> {
+  const all = loadMyItemComments(date);
+  if (!all[itemId]) return;
+  all[itemId] = all[itemId].filter((c) => c.id !== commentId);
   localStorage.setItem(`${COMMENTS_KEY_PREFIX}${date}`, JSON.stringify(all));
   await pushKey(`${COMMENTS_KEY_PREFIX}${date}`, all);
 }
