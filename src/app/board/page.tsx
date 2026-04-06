@@ -458,7 +458,7 @@ export default function BoardPage() {
                       </button>
                       {item.type === "manual" && (
                         <button onClick={() => handleDeleteManual(item.id)}
-                          className="shrink-0 rounded p-1 text-[var(--muted-foreground)] opacity-30 transition-all hover:text-red-400 hover:opacity-100 active:opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
+                          className="shrink-0 rounded p-1 text-[var(--muted-foreground)] opacity-40 transition-all hover:text-red-400 hover:opacity-100 active:text-red-400">
                           <Trash2 size={13} />
                         </button>
                       )}
