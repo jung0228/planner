@@ -118,6 +118,7 @@ export default function BoardPage() {
           store["personal-site-routine-completions"], store[`shared-board-${today}`], today
         ),
       }));
+      boards.sort((a, b) => b.items.length - a.items.length);
       setOtherBoards(boards);
     }
     setLoading(false);
