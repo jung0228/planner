@@ -194,6 +194,14 @@ export async function addItemComment(date: string, itemId: string, comment: Comm
   await pushKey(`${COMMENTS_KEY_PREFIX}${date}`, all);
 }
 
+export async function editItemComment(date: string, itemId: string, commentId: string, newText: string): Promise<void> {
+  const all = loadMyItemComments(date);
+  if (!all[itemId]) return;
+  all[itemId] = all[itemId].map((c) => c.id === commentId ? { ...c, text: newText } : c);
+  localStorage.setItem(`${COMMENTS_KEY_PREFIX}${date}`, JSON.stringify(all));
+  await pushKey(`${COMMENTS_KEY_PREFIX}${date}`, all);
+}
+
 export async function deleteItemComment(date: string, itemId: string, commentId: string): Promise<void> {
   const all = loadMyItemComments(date);
   if (!all[itemId]) return;
